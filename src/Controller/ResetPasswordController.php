@@ -30,9 +30,6 @@ class ResetPasswordController extends AbstractController
         private EntityManagerInterface $entityManager,
     ) {}
 
-    /**
-     * Display & process form to request a password reset.
-     */
     #[Route('', name: 'app_forgot_password_request')]
     public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator): Response
     {

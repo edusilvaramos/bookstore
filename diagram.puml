@@ -1,0 +1,59 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "bookstore" {
+
+    class User {
+        id : int
+        email : string
+        firstName : string
+        lastName : string
+        phone : string
+        dateOfBirth : DateTime
+        password : string
+        roles : array
+        isVerified : bool
+    }
+
+    class Address {
+        id : int
+        user : User
+        label : string
+        streetLine1 : string
+        streetLine2 : string
+        city : string
+        stateOrRegion : string
+        postalCode : string
+        countryCode : string
+        additionalInfo : string
+    }
+
+    class Book {
+        id : int
+        title : string
+        authors : array<string>
+        description : text
+        isbn13 : string
+        price : int
+        stock : int
+        coverUrl : string
+        publishedAt : DateTime
+        createdAt : DateTime
+    }
+
+    class ResetPasswordRequest {
+        id : int
+        user : User
+        ..from trait..
+        selector : string
+        hashedToken : string
+        requestedAt : DateTime
+        expiresAt : DateTime
+    }
+
+    User "1" -- "0..*" Address : has
+    User "1" -- "0..*" ResetPasswordRequest : requests
+}
+
+@enduml

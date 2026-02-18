@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bookstore{% endblock %}
+
+{% block body %}
+ <form class="d-flex">
+        <input class="form-control me-sm-2" type="search" placeholder="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+<div class="container py-4">
+	{% include 'home/listBooks.html.twig' with { books: books } %}
+</div>
+{% endblock %}

@@ -47,8 +47,8 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
             throw new CustomUserMessageAuthenticationException('Please verify your email before logging in.');
         }
 
-        // após login, manda pro home
-        return new RedirectResponse($this->urlGenerator->generate('app_home'));
+        // após login, manda para a lista de livros
+        return new RedirectResponse($this->urlGenerator->generate('app_book_index'));
     }
 
     protected function getLoginUrl(Request $request): string
