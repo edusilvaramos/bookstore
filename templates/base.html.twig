@@ -1,26 +1,43 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/slate/bootstrap.min.css" rel="stylesheet">
+	<head>
+		<meta charset="UTF-8">
+		<title>
+			{% block title %}Welcome!
+			{% endblock %}
+		</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/slate/bootstrap.min.css" rel="stylesheet"> {% block stylesheets %}{% endblock %}
 
-        {% block stylesheets %}{% endblock %}
+		{% block javascripts %}
+			{% block importmap %}
+				{{ importmap('app') }}
+			{% endblock %}
+		{% endblock %}
+	</head>
+	<body class="d-flex flex-column min-vh-100">
+		{# if user log show nav #}
+		{% if app.user %}
+			{{ include('components/nav.html.twig') }}
+		{% else %}
+			{{ include('components/public_nav.html.twig') }}
+		{% endif %}
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        <div class="container mt-3">
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endfor %}
-        </div>
-        {% block body %}{% endblock %}
-    </body>
-</html>
+
+		<main class="flex-grow-1">
+			<div class="container mt-3">
+				{% for label, messages in app.flashes %}
+					{% for message in messages %}
+						<div class="alert alert-{{ label == 'error' ? 'danger' : label }}" role="alert">
+							{{ message }}
+						</div>
+					{% endfor %}
+				{% endfor %}
+			</div>
+			<div class="container mt-3">{% block body %}{% endblock %}</div>
+		</main>
+
+		<div class="mt-auto w-100">
+			{{ include('components/footer.html.twig') }}
+		</div>
+		</body>
+	</html>

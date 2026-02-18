@@ -1,20 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!
+{% block title %}Log in
 {% endblock %}
 
 {% block body %}
+<div class="container w-50 mt-5">
 	<form method="post">
 		{% if error %}
 			<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-		{% endif %}
-
-		{% if app.user %}
-			<div class="mb-3">
-				You are logged in as
-				{{ app.user.userIdentifier }},
-				<a href="{{ logout_path() }}">Logout</a>
-			</div>
 		{% endif %}
 
 		<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
@@ -44,4 +37,5 @@
 			<a href="{{ path('app_register') }}">Create account</a>
 		</div>
 	</form>
+</div>
 {% endblock %}
