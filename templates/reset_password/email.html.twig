@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Reset your password</title>
+  </head>
+
+  <body style="margin:0;padding:0;background:#f6f5f3;">
+    {# hidden preheader #}
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      Reset your password in a few clicks. If you didn’t request this, ignore this email.
+    </div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f5f3;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0"
+                 style="width:600px;max-width:100%;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #ece9e4;">
+
+            {# Header #}
+            <tr>
+              <td style="padding:22px 26px;background:#ffffff;border-bottom:1px solid #f0ede8;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td align="left" style="vertical-align:middle;">
+                      <img
+                        src="{{ logoUrl|default(absolute_url(asset('assets/brand/logo.svg'))) }}"
+                        width="140"
+                        alt="{{ brandName|default('bookStore') }} logo"
+                        style="display:block;border:0;outline:none;text-decoration:none;"
+                      />
+                    </td>
+                    <td align="right" style="vertical-align:middle;">
+                      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#6b645a;">
+                        Security notice
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="font-family:ui-serif,Georgia,Times New Roman,serif;font-size:22px;line-height:1.25;margin-top:14px;color:#1c1a17;">
+                  Reset your password
+                </div>
+              </td>
+            </tr>
+
+            {# Body #}
+            <tr>
+              <td style="padding:26px;">
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:15px;line-height:1.7;color:#2b2823;">
+                  Hi <strong>{{ firstName|default('there') }}</strong>,<br/><br/>
+                  We received a request to reset your password. Click the button below to choose a new one.
+                </div>
+
+                {# Button #}
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:18px;">
+                  <tr>
+                    <td bgcolor="#1c1a17" style="border-radius:999px;">
+                      <a href="{{ actionUrl|default(url('app_reset_password', {token: resetToken.token})) }}"
+                         style="display:inline-block;padding:12px 18px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:14px;letter-spacing:0.02em;color:#ffffff;text-decoration:none;border-radius:999px;">
+                        Reset password
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:13px;line-height:1.7;color:#6b645a;margin-top:18px;">
+                  This link expires in <strong>{{ expiresIn|default('1 hour') }}</strong>.
+                </div>
+
+                {# Sub-card #}
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:18px;">
+                  <tr>
+                    <td style="background:#fbfaf8;border:1px solid #f0ede8;border-radius:14px;padding:14px 14px;">
+                      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:13px;line-height:1.7;color:#6b645a;">
+                        If you didn’t request this, you can safely ignore this email. Your password won’t change unless you create a new one.
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="height:1px;background:#f0ede8;margin:22px 0;"></div>
+
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:12px;line-height:1.7;color:#6b645a;">
+                  Having trouble with the button? Copy and paste this link into your browser:<br/>
+                  <a href="{{ actionUrl|default(url('app_reset_password', {token: resetToken.token})) }}" style="color:#1c1a17;text-decoration:underline;word-break:break-all;">
+                    {{ actionUrl|default(url('app_reset_password', {token: resetToken.token})) }}
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            {# Footer #}
+            <tr>
+              <td style="padding:18px 26px;background:#fbfaf8;border-top:1px solid #f0ede8;">
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:12px;line-height:1.7;color:#6b645a;">
+                  © {{ "now"|date("Y") }} {{ brandName|default('bookStore') }} · {{ brandAddress|default('Paris, France') }}<br/>
+                  <a href="{{ supportUrl|default('#') }}" style="color:#1c1a17;text-decoration:underline;">Contact support</a>
+                </div>
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
