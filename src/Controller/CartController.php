@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Cart;
 use App\Form\CartType;
+use App\Repository\BookRepository;
 use App\Repository\CartRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,8 +24,11 @@ final class CartController extends AbstractController
     }
 
     #[Route('/new', name: 'app_cart_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository): Response
     {
+        $bookId = $request->query->get('id');
+        $book = $bookRepository->find($bookId);
+        // dd($book);
         $cart = new Cart();
         $form = $this->createForm(CartType::class, $cart);
         $form->handleRequest($request);

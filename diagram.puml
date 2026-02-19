@@ -10,7 +10,7 @@ package "bookstore" {
         firstName : string
         lastName : string
         phone : string
-        dateOfBirth : DateTime
+        dateOfBirth : DateTimeImmutable
         password : string
         roles : array
         isVerified : bool
@@ -32,30 +32,30 @@ package "bookstore" {
     class Book {
         id : int
         title : string
-        authors : array
+        authors : list<string>
         description : text
         isbn13 : string
         price : int
         stock : int
         coverUrl : string
-        publishedAt : DateTime
-        createdAt : DateTime
+        publishedAt : DateTimeImmutable
+        createdAt : DateTimeImmutable
     }
 
     class Cart {
         id : int
         user : User
-        cartItem : Book
-        addAt : DateTime
+        cartItem : Collection<Book>
+        addAt : DateTimeImmutable
     }
 
     class Order {
         id : int
         user : User
-        orderItems : Book
+        orderItems : Collection<Book>
         totalAmount : int
         status : string
-        createdAt : DateTime
+        createdAt : DateTimeImmutable
     }
 
     class ResetPasswordRequest {
@@ -63,16 +63,16 @@ package "bookstore" {
         user : User
         selector : string
         hashedToken : string
-        requestedAt : DateTime
-        expiresAt : DateTime
+        requestedAt : DateTimeInterface
+        expiresAt : DateTimeInterface
     }
 
-    User "1" -- "1..*" Address : has
-    User "1" -- "1..*" ResetPasswordRequest : requests
-    User "1" -- "1..1" Cart : has
-    User "1" -- "1..*" Order: make
-    Book "1" -- "1..n" Cart: include 
-    Book "1" -- "1..n" Order: include
+    User "1" -- "0..*" Address : has
+    User "1" -- "0..*" ResetPasswordRequest : requests
+    User "1" -- "0..1" Cart : has
+    User "1" -- "0..*" Order : places
+    Cart "0..*" -- "0..*" Book : contains
+    Order "0..*" -- "0..*" Book : contains
 }
 
 @enduml
