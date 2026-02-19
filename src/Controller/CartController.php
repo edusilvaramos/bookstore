@@ -18,33 +18,50 @@ final class CartController extends AbstractController
     #[Route(name: 'app_cart_index', methods: ['GET'])]
     public function index(CartRepository $cartRepository): Response
     {
+        $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
+        $books = $cart->getCartItem();
+        // dump($books, $cart);
+        // die();
+
         return $this->render('cart/index.html.twig', [
-            'carts' => $cartRepository->findAll(),
+            'cart' => $cart,
+            'books' => $books,
         ]);
     }
 
-    #[Route('/new', name: 'app_cart_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository): Response
+    #[Route('/new', name: 'app_cart_add', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
     {
         $bookId = $request->query->get('id');
         $book = $bookRepository->find($bookId);
-        // dd($book);
-        $cart = new Cart();
-        $form = $this->createForm(CartType::class, $cart);
-        $form->handleRequest($request);
+        // dump($book);
+        $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
+        //  dump($cart);
+        //  die();
+        // push the book to the cart
+        $cart->addCartItem($book);
+        $entityManager->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($cart);
-            $entityManager->flush();
+        return $this->redirectToRoute('app_home_index', [], Response::HTTP_SEE_OTHER);
+    }
 
+    #[Route('/remove/{id}', name: 'app_cart_remove', methods: ['GET'])]
+    public function delete(int $id, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
+    {
+        $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
+        $book = $bookRepository->find($id);
+
+        if (!$cart || !$book) {
             return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('cart/new.html.twig', [
-            'cart' => $cart,
-            'form' => $form,
-        ]);
+        $cart->removeCartItem($book);
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
     }
+
 
     #[Route('/{id}', name: 'app_cart_show', methods: ['GET'])]
     public function show(Cart $cart): Response
@@ -70,16 +87,5 @@ final class CartController extends AbstractController
             'cart' => $cart,
             'form' => $form,
         ]);
-    }
-
-    #[Route('/{id}', name: 'app_cart_delete', methods: ['POST'])]
-    public function delete(Request $request, Cart $cart, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$cart->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($cart);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
     }
 }
