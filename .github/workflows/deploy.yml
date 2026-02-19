@@ -19,8 +19,20 @@ jobs:
             set -e
             cd /var/www/bookstore
 
+            if [ -z "${{ secrets.APP_SECRET }}" ]; then
+              echo "APP_SECRET não configurado nos GitHub Secrets"
+              exit 1
+            fi
+
             git fetch origin main
             git reset --hard origin/main
+
+            tmpfile=$(mktemp)
+            if [ -f .env.local ]; then
+              grep -v '^APP_SECRET=' .env.local > "$tmpfile" || true
+            fi
+            printf "APP_SECRET=%s\n" '${{ secrets.APP_SECRET }}' >> "$tmpfile"
+            mv "$tmpfile" .env.local
 
             composer install --no-dev --optimize-autoloader --no-interaction
 
