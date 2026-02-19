@@ -1,0 +1,25 @@
+<svg width="420" height="120" viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bookstore logo">
+  <defs>
+    <style>
+      .wordmark { font-family: Georgia, "Times New Roman", Times, serif; font-size: 34px; letter-spacing: 0.5px; fill: #1c1a17; }
+      .tagline { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 11px; letter-spacing: 3.2px; fill: #6b645a; }
+      .mark { stroke: #1c1a17; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <!-- Minimal “open book” mark -->
+  <g transform="translate(22,22)">
+    <path class="mark" d="M10 18c10-6 22-6 32 0v46c-10-6-22-6-32 0V18z"/>
+    <path class="mark" d="M42 18c10-6 22-6 32 0v46c-10-6-22-6-32 0V18z"/>
+    <path class="mark" d="M42 18v46"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="130" y="58" class="wordmark">The Bookstore</text>
+
+  <!-- Tagline -->
+  <text x="130" y="82" class="tagline">CURATED READS</text>
+
+  <!-- Thin baseline -->
+  <line x1="130" y1="95" x2="392" y2="95" stroke="#ece9e4" stroke-width="2"/>
+</svg>
