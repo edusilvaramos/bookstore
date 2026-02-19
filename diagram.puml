@@ -32,7 +32,7 @@ package "bookstore" {
     class Book {
         id : int
         title : string
-        authors : array<string>
+        authors : array
         description : text
         isbn13 : string
         price : int
@@ -42,18 +42,37 @@ package "bookstore" {
         createdAt : DateTime
     }
 
+    class Cart {
+        id : int
+        user : User
+        cartItem : Book
+        addAt : DateTime
+    }
+
+    class Order {
+        id : int
+        user : User
+        orderItems : Book
+        totalAmount : int
+        status : string
+        createdAt : DateTime
+    }
+
     class ResetPasswordRequest {
         id : int
         user : User
-        ..from trait..
         selector : string
         hashedToken : string
         requestedAt : DateTime
         expiresAt : DateTime
     }
 
-    User "1" -- "0..*" Address : has
-    User "1" -- "0..*" ResetPasswordRequest : requests
+    User "1" -- "1..*" Address : has
+    User "1" -- "1..*" ResetPasswordRequest : requests
+    User "1" -- "1..1" Cart : has
+    User "1" -- "1..*" Order: make
+    Book "1" -- "1..n" Cart: include 
+    Book "1" -- "1..n" Order: include
 }
 
 @enduml

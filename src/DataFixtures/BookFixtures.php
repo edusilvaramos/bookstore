@@ -36,7 +36,7 @@ class BookFixtures extends Fixture
             $book->setAuthors($authors);
             $book->setDescription($faker->paragraphs($faker->numberBetween(2, 5), true));
             $book->setIsbn13((string) $faker->isbn13());
-            $book->setPrice($faker->numberBetween(890, 5990)); // €8,90 a €59,90
+            $book->setPrice($faker->numberBetween(890, 5990)); // entre €8,90 a €59,90
             $book->setStock($faker->numberBetween(0, 40));
             $book->setCoverUrl($faker->randomElement($covers));
             $book->setPublishedAt(\DateTimeImmutable::createFromMutable(
