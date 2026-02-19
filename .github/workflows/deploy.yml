@@ -7,6 +7,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      APP_SECRET: ${{ secrets.APP_SECRET }}
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -15,23 +17,34 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
+          envs: APP_SECRET
           script: |
             set -e
             cd /var/www/bookstore
 
-            if [ -z "${{ secrets.APP_SECRET }}" ]; then
-              echo "APP_SECRET não configurado nos GitHub Secrets"
-              exit 1
-            fi
-
             git fetch origin main
             git reset --hard origin/main
+
+            existing_secret=""
+            if [ -f .env.local ]; then
+              existing_secret=$(grep '^APP_SECRET=' .env.local | head -n1 | cut -d '=' -f2- || true)
+            fi
+
+            if [ -n "$APP_SECRET" ]; then
+              final_secret="$APP_SECRET"
+            elif [ -n "$existing_secret" ]; then
+              final_secret="$existing_secret"
+              echo "APP_SECRET ausente nos GitHub Secrets; usando valor existente de .env.local"
+            else
+              final_secret=$(openssl rand -hex 32)
+              echo "APP_SECRET ausente; gerado novo segredo para primeira configuração"
+            fi
 
             tmpfile=$(mktemp)
             if [ -f .env.local ]; then
               grep -v '^APP_SECRET=' .env.local > "$tmpfile" || true
             fi
-            printf "APP_SECRET=%s\n" '${{ secrets.APP_SECRET }}' >> "$tmpfile"
+            printf "APP_SECRET=%s\n" "$final_secret" >> "$tmpfile"
             mv "$tmpfile" .env.local
 
             composer install --no-dev --optimize-autoloader --no-interaction
