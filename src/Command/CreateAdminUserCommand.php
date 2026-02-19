@@ -28,13 +28,27 @@ class CreateAdminUserCommand extends Command
     {
         $this
             ->addArgument('email', InputArgument::REQUIRED, 'Admin email')
-            ->addArgument('password', InputArgument::REQUIRED, 'Admin password');
+            ->addArgument('password', InputArgument::REQUIRED, 'Admin password')
+            ->addArgument('firstName', InputArgument::OPTIONAL, 'Admin first name', 'Admin')
+            ->addArgument('lastName', InputArgument::OPTIONAL, 'Admin last name', 'User')
+            ->addArgument('phone', InputArgument::OPTIONAL, 'Admin phone', '+33000000000')
+            ->addArgument('dateOfBirth', InputArgument::OPTIONAL, 'Admin birth date (YYYY-MM-DD)', '1990-01-01');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $email = strtolower(trim((string) $input->getArgument('email')));
         $plainPassword = (string) $input->getArgument('password');
+        $firstName = trim((string) $input->getArgument('firstName'));
+        $lastName = trim((string) $input->getArgument('lastName'));
+        $phone = trim((string) $input->getArgument('phone'));
+        $dateOfBirthInput = trim((string) $input->getArgument('dateOfBirth'));
+
+        $dateOfBirth = \DateTimeImmutable::createFromFormat('Y-m-d', $dateOfBirthInput);
+        if (!$dateOfBirth || $dateOfBirth->format('Y-m-d') !== $dateOfBirthInput) {
+            $output->writeln('<error>Invalid dateOfBirth format. Use YYYY-MM-DD.</error>');
+            return Command::FAILURE;
+        }
 
         /** @var User|null $existing */
         $existing = $this->em->getRepository(User::class)->findOneBy(['email' => $email]);
@@ -55,6 +69,10 @@ class CreateAdminUserCommand extends Command
         $user = new User();
         $user->setEmail($email);
         $user->setRoles(['ROLE_ADMIN']);
+        $user->setFirstName($firstName !== '' ? $firstName : 'Admin');
+        $user->setLastName($lastName !== '' ? $lastName : 'User');
+        $user->setPhone($phone !== '' ? $phone : '+33000000000');
+        $user->setDateOfBirth($dateOfBirth);
 
         $hashed = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($hashed);
