@@ -16,6 +16,7 @@ class Cart
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'cart', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     /**
@@ -30,6 +31,7 @@ class Cart
     public function __construct()
     {
         $this->cartItem = new ArrayCollection();
+        $this->addAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -45,6 +47,10 @@ class Cart
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        if ($user !== null && $user->getCart() !== $this) {
+            $user->setCart($this);
+        }
 
         return $this;
     }
