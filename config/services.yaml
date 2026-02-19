@@ -22,5 +22,13 @@ services:
     App\:
         resource: '../src/'
 
+    App\Command\CreateAdminUserCommand:
+        tags:
+            - { name: 'console.command', command: 'app:create-admin' }
+
+    App\Command\SeedBooksCommand:
+        tags:
+            - { name: 'console.command', command: 'app:seed:books' }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
