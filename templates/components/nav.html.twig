@@ -7,14 +7,14 @@
     <div class="collapse navbar-collapse ms-auto justify-content-end" id="navbarColor03">
       <ul class="navbar-nav gap-3">
         <li class="nav-item">
-          <a class="nav-link active" href="{{ path('app_home_index') }}">Home
+          <a class="nav-link" href="{{ path('app_home_index') }}">Home
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">Profile</a>
+          <a class="nav-link" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ path('app_cart_index') }}">Cart</a>
+          <a class="nav-link" href="{{ path('app_cart_index', {'id': app.user.cart.id}) }}">Cart</a>
         </li>
       </ul>
     </div>
