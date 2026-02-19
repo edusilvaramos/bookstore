@@ -47,8 +47,18 @@ jobs:
             printf "APP_SECRET=%s\n" "$final_secret" >> "$tmpfile"
             mv "$tmpfile" .env.local
 
+            # Garantir que o PHP-FPM (www-data) consiga ler o arquivo
+            chgrp www-data .env.local
+            chmod 640 .env.local
+            
             composer install --no-dev --optimize-autoloader --no-interaction
+
+            APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:schema:validate --skip-sync
+
+            APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
 
             APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
             APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup
             APP_ENV=prod APP_DEBUG=0 php bin/console asset-map:compile
+
+            sudo systemctl reload php8.4-fpm
