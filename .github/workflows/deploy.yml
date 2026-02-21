@@ -23,6 +23,18 @@ jobs:
       - name: Install JS deps
         run: npm ci
 
+      - name: Debug - show lockfile and turbo dep
+        run: |
+          ls -la
+          ls -la package-lock.json || true
+          node -p "require('./package.json').dependencies?.['@symfony/ux-turbo'] || require('./package.json').devDependencies?.['@symfony/ux-turbo'] || 'NOT_FOUND'"
+          grep -n "\"@symfony/ux-turbo\"" package-lock.json | head -n 20 || true
+
+      - name: Debug - check installed package
+        run: |
+          ls -la node_modules/@symfony/ux-turbo/package.json || true
+          npm ls @symfony/ux-turbo || true
+
       - name: Build assets (Encore production)
         run: |
           npm run build --if-present
