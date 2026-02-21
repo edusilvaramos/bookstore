@@ -26,7 +26,8 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
 
         for ($i = 1; $i <= 12; $i++) {
             $user = new User();
-            $user->setEmail($faker->unique()->safeEmail());
+            $email = $faker->unique()->safeEmail();
+            $user->setEmail($email);
             $user->setFirstName($faker->firstName());
             $user->setLastName($faker->lastName());
             $user->setPhone($faker->regexify('[0-9]{10}'));
@@ -35,7 +36,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             ));
             $user->setRoles(['ROLE_USER']);
             $user->setIsVerified(true);
-            $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $email));
             $manager->persist($user);
             $users[] = $user;
             $this->createAddressesForUser($manager, $faker, $user);

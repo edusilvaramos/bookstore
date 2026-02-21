@@ -16,14 +16,15 @@ class AdminUserFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $admin = new User();
-        $admin->setEmail('admin@admin.com');
+        $email = 'admin@admin.com';
+        $admin->setEmail($email);
         $admin->setFirstName('Admin');
         $admin->setLastName('User');
         $admin->setPhone('0000000000');
         $admin->setDateOfBirth(new \DateTimeImmutable('1990-01-01'));
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setIsVerified(true);
-        $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin'));
+        $admin->setPassword($this->passwordHasher->hashPassword($admin, $email));
 
         $manager->persist($admin);
         $manager->flush();
