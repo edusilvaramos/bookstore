@@ -73,6 +73,7 @@ class CreateAdminUserCommand extends Command
         $user->setLastName($lastName !== '' ? $lastName : 'User');
         $user->setPhone($phone !== '' ? $phone : '+33000000000');
         $user->setDateOfBirth($dateOfBirth);
+        $user->setIsVerified(true);
 
         $hashed = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($hashed);

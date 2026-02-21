@@ -11,6 +11,6 @@ final class RootController extends AbstractController
     #[Route('/', name: 'app_root', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->redirectToRoute('app_home_index');
+        return $this->redirectToRoute('app_book_index');
     }
 }

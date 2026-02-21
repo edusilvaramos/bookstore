@@ -23,9 +23,14 @@ final class CartController extends AbstractController
         // dump($books, $cart);
         // die();
 
+        $totalPrice = array_reduce($books->toArray(), function ($total, $book) {
+            return $total + $book->getPrice();
+        }, 0);
+
         return $this->render('cart/index.html.twig', [
             'cart' => $cart,
             'books' => $books,
+            'totalPrice' => $totalPrice,
         ]);
     }
 
@@ -42,7 +47,7 @@ final class CartController extends AbstractController
         $cart->addCartItem($book);
         $entityManager->flush();
 
-        return $this->redirectToRoute('app_home_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/remove/{id}', name: 'app_cart_remove', methods: ['GET'])]

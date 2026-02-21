@@ -48,7 +48,7 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         // após login, manda para a lista de livros
-        return new RedirectResponse($this->urlGenerator->generate('app_home_index'));
+        return new RedirectResponse($this->urlGenerator->generate('app_book_index'));
     }
 
     protected function getLoginUrl(Request $request): string

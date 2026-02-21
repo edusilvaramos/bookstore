@@ -1,0 +1,4 @@
+/* border-right none */
+.navbar-brand, .nav-item .nav-link {
+    border: none !important;
+}
