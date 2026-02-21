@@ -16,6 +16,11 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ path('app_cart_index', {'id': app.user.cart.id}) }}">Cart</a>
         </li>
+        {% if is_granted('ROLE_ADMIN') %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ path('admin') }}">Admin</a>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>
