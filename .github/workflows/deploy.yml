@@ -1,58 +1,14 @@
-name: Deploy to VPS
+name: Deploy to VPS (build on server)
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build_and_deploy:
+  deploy:
     runs-on: ubuntu-latest
-    env:
-      APP_SECRET: ${{ secrets.APP_SECRET }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install JS deps
-        run: npm ci
-
-      - name: Debug - show lockfile and turbo dep
-        run: |
-          ls -la
-          ls -la package-lock.json || true
-          node -p "require('./package.json').dependencies?.['@symfony/ux-turbo'] || require('./package.json').devDependencies?.['@symfony/ux-turbo'] || 'NOT_FOUND'"
-          grep -n "\"@symfony/ux-turbo\"" package-lock.json | head -n 20 || true
-
-      - name: Debug - check installed package
-        run: |
-          ls -la node_modules/@symfony/ux-turbo/package.json || true
-          npm ls @symfony/ux-turbo || true
-
-      - name: Build assets (Encore production)
-        run: |
-          npm run build --if-present
-          if [ ! -d public/build ] || [ -z "$(ls -A public/build 2>/dev/null)" ]; then
-            npx encore production
-          fi
-
-      - name: Upload public/build to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          source: "public/build"
-          target: "/var/www/bookstore"
-          strip_components: 1
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -60,48 +16,30 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          envs: APP_SECRET
           script: |
             set -e
+
             cd /var/www/bookstore
 
+            echo "==> Pull latest code"
             git fetch origin main
             git reset --hard origin/main
 
-            existing_secret=""
-            if [ -f .env.local ]; then
-              existing_secret=$(grep '^APP_SECRET=' .env.local | head -n1 | cut -d '=' -f2- || true)
-            fi
-
-            if [ -n "$APP_SECRET" ]; then
-              final_secret="$APP_SECRET"
-            elif [ -n "$existing_secret" ]; then
-              final_secret="$existing_secret"
-              echo "APP_SECRET ausente nos GitHub Secrets; usando valor existente de .env.local"
-            else
-              final_secret=$(openssl rand -hex 32)
-              echo "APP_SECRET ausente; gerado novo segredo para primeira configuração"
-            fi
-
-            tmpfile=$(mktemp)
-            if [ -f .env.local ]; then
-              grep -v '^APP_SECRET=' .env.local > "$tmpfile" || true
-            fi
-            printf "APP_SECRET=%s\n" "$final_secret" >> "$tmpfile"
-            mv "$tmpfile" .env.local
-
-            chgrp www-data .env.local
-            chmod 640 .env.local
-
-            # garantir permissões dos assets enviados
-            sudo chown -R www-data:www-data public/build || true
-
+            echo "==> Install PHP deps"
             composer install --no-dev --optimize-autoloader --no-interaction
 
-            APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:schema:validate --skip-sync
+            echo "==> Build front assets (Encore) on VPS"
+            npm ci
+            npm run build
+
+            echo "==> Database migrations"
             APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
 
+            echo "==> Cache clear/warmup"
             APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
             APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup
 
-            sudo systemctl reload php8.4-fpm
+            echo "==> Reload PHP-FPM (ignore if service name differs)"
+            sudo systemctl reload php8.4-fpm || sudo systemctl reload php-fpm || true
+
+            echo "✅ Deploy finished"
