@@ -14,6 +14,9 @@ package "bookstore" {
         password : string
         roles : array
         isVerified : bool
+        addresses : Collection<Address>
+        cart : Cart
+        orders : Collection<Order>
     }
 
     class Address {
@@ -40,6 +43,8 @@ package "bookstore" {
         coverUrl : string
         publishedAt : DateTimeImmutable
         createdAt : DateTimeImmutable
+        carts : Collection<Cart>
+        orders : Collection<Order>
     }
 
     class Cart {
@@ -67,10 +72,10 @@ package "bookstore" {
         expiresAt : DateTimeInterface
     }
 
-    User "1" -- "0..*" Address : has
+    User "0..1" -- "0..*" Address : has
     User "1" -- "0..*" ResetPasswordRequest : requests
     User "1" -- "0..1" Cart : has
-    User "1" -- "0..*" Order : places
+    User "0..1" -- "0..*" Order : places
     Cart "0..*" -- "0..*" Book : contains
     Order "0..*" -- "0..*" Book : contains
 }
