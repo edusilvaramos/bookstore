@@ -6,14 +6,19 @@
 			{% block title %}Welcome!
 			{% endblock %}
 		</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/slate/bootstrap.min.css" rel="stylesheet"> {% block stylesheets %}{% endblock %}
-            {{ encore_entry_link_tags('app') }}
-
+		<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/slate/bootstrap.min.css" rel="stylesheet"> 
+		
+		{# Custom stylesheets #}
+		{% block stylesheets %}{% endblock %}
+		{# JavaScript files #}
+		{{ encore_entry_link_tags('app') }}
+		{# Custom JavaScript files #}
 		{% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
+			{{ encore_entry_script_tags('app') }}
 		{% endblock %}
 	</head>
-	<body class="d-flex flex-column min-vh-100">
+	<body
+		class="d-flex flex-column min-vh-100">
 		{# if user log show nav #}
 		{% if app.user %}
 			{{ include('components/nav.html.twig') }}
@@ -24,19 +29,28 @@
 
 		<main class="flex-grow-1">
 			<div class="container mt-3">
-				{% for label, messages in app.flashes %}
-					{% for message in messages %}
-						<div class="alert alert-{{ label == 'error' ? 'danger' : label }}" role="alert">
-							{{ message }}
-						</div>
-					{% endfor %}
+				{% for message in app.flashes('success') %}
+					<div class="alert alert-success" role="alert">{{ message }}</div>
+				{% endfor %}
+				{% for message in app.flashes('error') %}
+					<div class="alert alert-danger" role="alert">{{ message }}</div>
+				{% endfor %}
+				{% for message in app.flashes('warning') %}
+					<div class="alert alert-warning" role="alert">{{ message }}</div>
+				{% endfor %}
+				{% for message in app.flashes('info') %}
+					<div class="alert alert-info" role="alert">{{ message }}</div>
+				{% endfor %}
+				{% for message in app.flashes('verify_email_error') %}
+					<div class="alert alert-danger" role="alert">{{ message }}</div>
 				{% endfor %}
 			</div>
-			<div class="container mt-3">{% block body %}{% endblock %}</div>
-		</main>
+			<div class="container mt-3"> {% block body %}{% endblock %}
+				</div>
+			</main>
 
-		<div class="mt-auto w-100">
-			{{ include('components/footer.html.twig') }}
-		</div>
+			<div class="mt-auto w-100">
+				{{ include('components/footer.html.twig') }}
+			</div>
 		</body>
 	</html>

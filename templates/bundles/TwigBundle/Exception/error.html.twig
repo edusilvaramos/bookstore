@@ -1,0 +1,45 @@
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Something went wrong{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="display-6 m-0">⚠️</div>
+            <div>
+              <h1 class="h4 mb-1">We hit a snag</h1>
+              <p class="text-body-secondary mb-0">
+                An unexpected error occurred. Please try again.
+              </p>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="{{ path('app_book_index') }}">Back to home</a>
+            <button class="btn btn-outline-secondary" type="button" onclick="history.back()">Go back</button>
+          </div>
+
+          {% if app.debug and exception is defined %}
+            <div class="mt-4">
+              <details class="small">
+                <summary class="text-body-secondary">Debug details</summary>
+                <pre class="mt-2 mb-0">{{ exception.message }}</pre>
+              </details>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <p class="text-center text-body-secondary small mt-3 mb-0">
+        If the problem persists, contact support.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
