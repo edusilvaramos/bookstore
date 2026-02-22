@@ -70,11 +70,6 @@
         <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-primary">
           Edit profile
         </a>
-
-        <a href="{{ path('app_user_index') }}" class="btn btn-outline-light">
-          Back to list
-        </a>
-
         {# opcional: apagar conta (cuidado!) #}
         <span class="ms-auto">
           {{ include('user/_delete_form.html.twig') }}

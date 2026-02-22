@@ -33,7 +33,8 @@ final class CartController extends AbstractController
             'totalPrice' => $totalPrice,
         ]);
     }
-
+    
+    //  to add a book to the cart
     #[Route('/new', name: 'app_cart_add', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
     {
@@ -50,6 +51,7 @@ final class CartController extends AbstractController
         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
     }
 
+    //  to remove a book from the cart
     #[Route('/remove/{id}', name: 'app_cart_remove', methods: ['GET'])]
     public function delete(int $id, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
     {
