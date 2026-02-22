@@ -19,9 +19,7 @@ class Cart
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    /**
-     * @var Collection<int, CartItem>
-     */
+ 
     #[ORM\OneToMany(mappedBy: 'cart', targetEntity: CartItem::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $items;
 
@@ -55,9 +53,6 @@ class Cart
         return $this;
     }
 
-    /**
-     * @return Collection<int, CartItem>
-     */
     public function getItems(): Collection
     {
         return $this->items;
