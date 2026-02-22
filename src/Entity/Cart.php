@@ -20,17 +20,17 @@ class Cart
     private ?User $user = null;
 
     /**
-     * @var Collection<int, Book>
+     * @var Collection<int, CartItem>
      */
-    #[ORM\ManyToMany(targetEntity: Book::class, inversedBy: 'carts')]
-    private Collection $cartItem;
+    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: CartItem::class, orphanRemoval: true, cascade: ['persist'])]
+    private Collection $items;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $addAt = null;
 
     public function __construct()
     {
-        $this->cartItem = new ArrayCollection();
+        $this->items = new ArrayCollection();
         $this->addAt = new \DateTimeImmutable();
     }
 
@@ -56,27 +56,41 @@ class Cart
     }
 
     /**
-     * @return Collection<int, Book>
+     * @return Collection<int, CartItem>
      */
-    public function getCartItem(): Collection
+    public function getItems(): Collection
     {
-        return $this->cartItem;
+        return $this->items;
     }
 
-    public function addCartItem(Book $cartItem): static
+    public function addItem(CartItem $item): static
     {
-        if (!$this->cartItem->contains($cartItem)) {
-            $this->cartItem->add($cartItem);
+        if (!$this->items->contains($item)) {
+            $this->items->add($item);
+            $item->setCart($this);
         }
 
         return $this;
     }
 
-    public function removeCartItem(Book $cartItem): static
+    public function removeItem(CartItem $item): static
     {
-        $this->cartItem->removeElement($cartItem);
+        if ($this->items->removeElement($item) && $item->getCart() === $this) {
+            $item->setCart(null);
+        }
 
         return $this;
+    }
+
+    public function findItemByBook(Book $book): ?CartItem
+    {
+        foreach ($this->items as $item) {
+            if ($item->getBook() === $book) {
+                return $item;
+            }
+        }
+
+        return null;
     }
 
     public function getAddAt(): ?\DateTimeImmutable
@@ -90,4 +104,5 @@ class Cart
 
         return $this;
     }
+
 }

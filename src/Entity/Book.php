@@ -47,10 +47,10 @@ class Book
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
-     * @var Collection<int, Cart>
+     * @var Collection<int, CartItem>
      */
-    #[ORM\ManyToMany(targetEntity: Cart::class, mappedBy: 'cartItem')]
-    private Collection $carts;
+    #[ORM\OneToMany(mappedBy: 'book', targetEntity: CartItem::class, orphanRemoval: true)]
+    private Collection $cartItems;
 
     /**
      * @var Collection<int, Order>
@@ -60,7 +60,7 @@ class Book
 
     public function __construct()
     {
-        $this->carts = new ArrayCollection();
+        $this->cartItems = new ArrayCollection();
         $this->orders = new ArrayCollection();
     }
 
@@ -184,27 +184,27 @@ class Book
     }
 
     /**
-     * @return Collection<int, Cart>
+     * @return Collection<int, CartItem>
      */
-    public function getCarts(): Collection
+    public function getCartItems(): Collection
     {
-        return $this->carts;
+        return $this->cartItems;
     }
 
-    public function addCart(Cart $cart): static
+    public function addCartItem(CartItem $cartItem): static
     {
-        if (!$this->carts->contains($cart)) {
-            $this->carts->add($cart);
-            $cart->addCartItem($this);
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems->add($cartItem);
+            $cartItem->setBook($this);
         }
 
         return $this;
     }
 
-    public function removeCart(Cart $cart): static
+    public function removeCartItem(CartItem $cartItem): static
     {
-        if ($this->carts->removeElement($cart)) {
-            $cart->removeCartItem($this);
+        if ($this->cartItems->removeElement($cartItem) && $cartItem->getBook() === $this) {
+            $cartItem->setBook(null);
         }
 
         return $this;

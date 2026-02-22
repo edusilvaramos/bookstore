@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Address;
 use App\Entity\Book;
+use App\Entity\CartItem;
 use App\Entity\Order;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -63,7 +64,11 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $cart->setAddAt(\DateTimeImmutable::createFromMutable($faker->dateTimeBetween('-30 days', 'now')));
 
         foreach ($this->pickRandomBooks($books, $faker->numberBetween(0, 4)) as $book) {
-            $cart->addCartItem($book);
+            $item = (new CartItem())
+                ->setBook($book)
+                ->setQuantity($faker->numberBetween(1, 3));
+
+            $cart->addItem($item);
         }
     }
 

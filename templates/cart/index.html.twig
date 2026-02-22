@@ -7,13 +7,14 @@
 
     <h2 class="mb-4">My Cart</h2>
 
-    {% if books is not empty %}
+    {% if items is not empty %}
 
         <div class="card bg-dark">
 
             <div class="card-body">
 
-                {% for book in books %}
+                {% for item in items %}
+                    {% set book = item.book %}
                     <div class="d-flex align-items-center mb-3 border-bottom pb-3">
 
                         <img 
@@ -29,8 +30,21 @@
                         </div>
 
                         <div class="text-end">
+                            <div class="d-inline-flex align-items-center gap-2">
+                                <a href="{{ path('app_cart_decrease', {id: book.id}) }}"
+                                   class="btn btn-sm btn-outline-light"
+                                   aria-label="Decrease quantity">
+                                    -
+                                </a>
+                                <span>Qty: {{ item.quantity }}</span>
+                                <a href="{{ path('app_cart_add', {id: book.id, from: 'cart'}) }}"
+                                   class="btn btn-sm btn-outline-light"
+                                   aria-label="Increase quantity">
+                                    +
+                                </a>
+                            </div>
                             <div class="fw-bold">
-                                {{ book.price|euro }}
+                                {{ (book.price * item.quantity)|euro }}
                             </div>
 
                             <a href="{{ path('app_cart_remove', {id: book.id}) }}" 

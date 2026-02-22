@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Book;
 use App\Entity\Cart;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -21,11 +20,6 @@ class CartType extends AbstractType
             ->add('user', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'id',
-            ])
-            ->add('cartItem', EntityType::class, [
-                'class' => Book::class,
-                'choice_label' => 'id',
-                'multiple' => true,
             ])
         ;
     }

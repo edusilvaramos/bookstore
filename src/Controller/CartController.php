@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Cart;
+use App\Entity\CartItem;
 use App\Form\CartType;
 use App\Repository\BookRepository;
 use App\Repository\CartRepository;
@@ -19,17 +20,21 @@ final class CartController extends AbstractController
     public function index(CartRepository $cartRepository): Response
     {
         $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
-        $books = $cart->getCartItem();
-        // dump($books, $cart);
-        // die();
+        $cartItems = $cart?->getItems() ?? [];
 
-        $totalPrice = array_reduce($books->toArray(), function ($total, $book) {
-            return $total + $book->getPrice();
+        $totalPrice = array_reduce(is_array($cartItems) ? $cartItems : $cartItems->toArray(), function ($total, CartItem $item) {
+            $book = $item->getBook();
+
+            if ($book === null) {
+                return $total;
+            }
+
+            return $total + ($book->getPrice() * $item->getQuantity());
         }, 0);
 
         return $this->render('cart/index.html.twig', [
             'cart' => $cart,
-            'books' => $books,
+            'items' => $cartItems,
             'totalPrice' => $totalPrice,
         ]);
     }
@@ -39,19 +44,56 @@ final class CartController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
     {
         $bookId = $request->query->get('id');
+        $from = $request->query->get('from');
         $book = $bookRepository->find($bookId);
-        // dump($book);
         $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
-        //  dump($cart);
-        //  die();
-        // push the book to the cart
-        $cart->addCartItem($book);
+
+        if (!$cart || !$book) {
+            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $existingItem = $cart->findItemByBook($book);
+
+        if ($existingItem !== null) {
+            $existingItem->incrementQuantity();
+        } else {
+            $item = (new CartItem())
+                ->setBook($book)
+                ->setQuantity(1);
+            $cart->addItem($item);
+        }
+
         $entityManager->flush();
+
+        if ($from === 'cart') {
+            return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
+        }
 
         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    //  to remove a book from the cart
+    #[Route('/decrease/{id}', name: 'app_cart_decrease', methods: ['GET'])]
+    public function decrease(int $id, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
+    {
+        $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
+        $book = $bookRepository->find($id);
+
+        if (!$cart || !$book) {
+            return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $item = $cart->findItemByBook($book);
+
+        if ($item !== null && $item->getQuantity() > 1) {
+            $item->setQuantity($item->getQuantity() - 1);
+        }
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    //  to remove a book line from the cart
     #[Route('/remove/{id}', name: 'app_cart_remove', methods: ['GET'])]
     public function delete(int $id, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
     {
@@ -62,7 +104,11 @@ final class CartController extends AbstractController
             return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        $cart->removeCartItem($book);
+        $item = $cart->findItemByBook($book);
+
+        if ($item !== null) {
+            $cart->removeItem($item);
+        }
 
         $entityManager->flush();
 
