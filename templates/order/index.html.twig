@@ -19,7 +19,7 @@
         {% for order in orders %}
             <tr>
                 <td>{{ order.id }}</td>
-                <td>{{ order.totalAmount }}</td>
+                <td>{{ order.totalAmount|euro }}</td>
                 <td>{{ order.status }}</td>
                 <td>{{ order.createdAt ? order.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>

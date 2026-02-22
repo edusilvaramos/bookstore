@@ -52,32 +52,32 @@ final class BookController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_book_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Book $book, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(BookType::class, $book);
-        $form->handleRequest($request);
+    // #[Route('/{id}/edit', name: 'app_book_edit', methods: ['GET', 'POST'])]
+    // public function edit(Request $request, Book $book, EntityManagerInterface $entityManager): Response
+    // {
+    //     $form = $this->createForm(BookType::class, $book);
+    //     $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
-        }
+    //         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    //     }
 
-        return $this->render('book/edit.html.twig', [
-            'book' => $book,
-            'form' => $form,
-        ]);
-    }
+    //     return $this->render('book/edit.html.twig', [
+    //         'book' => $book,
+    //         'form' => $form,
+    //     ]);
+    // }
 
-    #[Route('/{id}', name: 'app_book_delete', methods: ['POST'])]
-    public function delete(Request $request, Book $book, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $book->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($book);
-            $entityManager->flush();
-        }
+    // #[Route('/{id}', name: 'app_book_delete', methods: ['POST'])]
+    // public function delete(Request $request, Book $book, EntityManagerInterface $entityManager): Response
+    // {
+    //     if ($this->isCsrfTokenValid('delete' . $book->getId(), $request->getPayload()->getString('_token'))) {
+    //         $entityManager->remove($book);
+    //         $entityManager->flush();
+    //     }
 
-        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
-    }
+    //     return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    // }
 }

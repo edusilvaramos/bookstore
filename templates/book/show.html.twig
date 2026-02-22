@@ -1,58 +1,75 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Book{% endblock %}
+{% block title %}{{ book.title }}{% endblock %}
 
 {% block body %}
-    <h1>Book</h1>
+<div class="container py-4">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ book.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ book.title }}</td>
-            </tr>
-            <tr>
-                <th>Authors</th>
-                <td>{{ book.authors ? book.authors|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ book.description }}</td>
-            </tr>
-            <tr>
-                <th>Isbn13</th>
-                <td>{{ book.isbn13 }}</td>
-            </tr>
-            <tr>
-                <th>Price</th>
-                <td>{{ book.price }}</td>
-            </tr>
-            <tr>
-                <th>Stock</th>
-                <td>{{ book.stock }}</td>
-            </tr>
-            <tr>
-                <th>CoverUrl</th>
-                <td>{{ book.coverUrl }}</td>
-            </tr>
-            <tr>
-                <th>PublishedAt</th>
-                <td>{{ book.publishedAt ? book.publishedAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ book.createdAt ? book.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+  <a href="{{ path('app_book_index') }}" class="btn btn-sm btn-outline-light mb-3">
+    ← Back
+  </a>
 
-    <a href="{{ path('app_book_index') }}">back to list</a>
+  <div class="card bg-dark border-secondary shadow-sm">
+    <div class="row g-0">
 
-    <a href="{{ path('app_book_edit', {'id': book.id}) }}">edit</a>
+      {# COVER #}
+      <div class="col-md-4">
+        <img
+          src="{{ book.coverUrl }}"
+          alt="{{ book.title }}"
+          class="img-fluid w-100 rounded-start"
+          style="height: 100%; min-height: 320px; object-fit: cover;"
+        >
+      </div>
 
-    {{ include('book/_delete_form.html.twig') }}
+      {# CONTENT #}
+      <div class="col-md-8">
+        <div class="card-body p-4">
+
+          <h1 class="h3 mb-1">{{ book.title }}</h1>
+
+          <p class="text-muted mb-3">
+            {% if book.authors %}
+              {# se authors for array/json #}
+              {{ book.authors is iterable ? book.authors|join(', ') : book.authors }}
+            {% else %}
+              Unknown author
+            {% endif %}
+          </p>
+
+          {% if book.description %}
+            <p class="mb-4" style="opacity:.85;">
+              {{ book.description }}
+            </p>
+          {% endif %}
+
+          <div class="d-flex flex-wrap gap-2 mb-4">
+            {% if book.isbn13 %}
+              <span class="badge text-bg-secondary">ISBN13: {{ book.isbn13 }}</span>
+            {% endif %}
+            {% if book.publishedAt %}
+              <span class="badge text-bg-secondary">Published: {{ book.publishedAt|date('Y') }}</span>
+            {% endif %}
+            <span class="badge text-bg-secondary">Stock: {{ book.stock }}</span>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fs-4 fw-bold">
+              {{ book.price|euro }}
+            </div>
+
+            <div class="d-flex gap-2">
+              {# Boutique action (cart) - ajuste a route se for diferente #}
+              <a href="{{ path('app_cart_add', {id: book.id}) }}" class="btn btn-primary">
+                Add to cart
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
 {% endblock %}

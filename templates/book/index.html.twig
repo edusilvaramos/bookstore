@@ -30,7 +30,7 @@
                         </p>
 
                         <p class="fw-bold mb-3">
-                            €{{ book.price }}
+                            {{ book.price|euro }}
                         </p>
 
                         <a href="{{ path('app_book_show', {id: book.id}) }}" 
