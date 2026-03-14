@@ -3,30 +3,47 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-<div class="container w-50 mt-5">
+<div class="row justify-content-center my-5">
+    <div class="col-12 col-md-10 col-lg-7 col-xl-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h3 mb-2">Create account</h1>
+                <p class="text-muted mb-4">Fill in your details to start shopping.</p>
 
-<h1>Create account</h1>
+                {{ form_start(registrationForm, { attr: { novalidate: 'novalidate' } }) }}
+                    {% if registrationForm.vars.submitted and not registrationForm.vars.valid %}
+                        <div class="alert alert-danger mb-3" role="alert">
+                            <strong>Please fix the errors highlighted below.</strong>
+                            {% if registrationForm.vars.errors|length > 0 %}
+                                <ul class="mb-0 mt-1 ps-3">
+                                    {% for error in registrationForm.vars.errors %}
+                                        <li>{{ error.message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">{{ form_row(registrationForm.firstName) }}</div>
+                        <div class="col-12 col-md-6">{{ form_row(registrationForm.lastName) }}</div>
+                        <div class="col-12 col-md-6">{{ form_row(registrationForm.phone) }}</div>
+                        <div class="col-12 col-md-6">{{ form_row(registrationForm.dateOfBirth) }}</div>
+                        <div class="col-12">{{ form_row(registrationForm.email) }}</div>
+                        <div class="col-12">{{ form_row(registrationForm.plainPassword) }}</div>
+                        <div class="col-12">{{ form_row(registrationForm.agreeTerms) }}</div>
+                    </div>
 
-{{ form_start(registrationForm) }}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                {{ form_end(registrationForm) }}
 
-    {{ form_row(registrationForm.firstName) }}
-    {{ form_row(registrationForm.lastName) }}
-    {{ form_row(registrationForm.phone) }}
-    {{ form_row(registrationForm.dateOfBirth) }}
-    {{ form_row(registrationForm.email) }}
-    {{ form_row(registrationForm.plainPassword) }}
-
-    {{ form_row(registrationForm.agreeTerms) }}
-
-    <button type="submit" class="btn btn-primary">
-        Register
-    </button>
-
-{{ form_end(registrationForm) }}
-
-<p>
-    Already have an account?
-    <a href="{{ path('app_login') }}">Login</a>
-</p>
+                <p class="mt-4 mb-0 text-center">
+                    Already have an account?
+                    <a href="{{ path('app_login') }}">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

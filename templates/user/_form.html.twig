@@ -1,4 +1,15 @@
-{{ form_start(form, { attr: { class: 'needs-validation' } }) }}
+{{ form_start(form, { attr: { class: 'needs-validation', novalidate: 'novalidate' } }) }}
+
+{% if form.vars.submitted and not form.vars.valid %}
+    <div class="alert alert-danger mb-3" role="alert">
+        <strong>Please fix the errors highlighted below.</strong>
+        {% if form.vars.errors|length > 0 %}
+            <ul class="mb-0 mt-1 ps-3">
+                {% for error in form.vars.errors %}<li>{{ error.message }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endif %}
 
 <div class="card bg-dark border-secondary shadow-sm mb-4">
   <div class="card-body p-4 ">

@@ -1,4 +1,32 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+{% if form.vars.submitted and not form.vars.valid %}
+    <div class="alert alert-danger mb-3" role="alert">
+        <strong>Please fix the errors highlighted below.</strong>
+        {% if form.vars.errors|length > 0 %}
+            <ul class="mb-0 mt-1 ps-3">
+                {% for error in form.vars.errors %}<li>{{ error.message }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endif %}
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-12">{{ form_row(form.title) }}</div>
+            <div class="col-12">{{ form_row(form.authors) }}</div>
+            <div class="col-12">{{ form_row(form.description) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.isbn13) }}</div>
+            <div class="col-12 col-md-3">{{ form_row(form.price) }}</div>
+            <div class="col-12 col-md-3">{{ form_row(form.stock) }}</div>
+            <div class="col-12">{{ form_row(form.coverUrl) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.publishedAt) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.createdAt) }}</div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+            <a class="btn btn-outline-secondary" href="{{ path('app_book_index') }}">Cancel</a>
+        </div>
+    </div>
+</div>
 {{ form_end(form) }}

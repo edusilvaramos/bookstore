@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CartItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
 #[ORM\UniqueConstraint(name: 'uniq_cart_item_cart_book', columns: ['cart_id', 'book_id'])]
@@ -23,6 +24,8 @@ class CartItem
     private ?Book $book = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Range(min: 1, max: 999)]
     private int $quantity = 1;
 
     public function getId(): ?int

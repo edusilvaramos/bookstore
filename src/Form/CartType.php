@@ -14,12 +14,15 @@ class CartType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('addAt', null, [
+                ->add('addAt', DateTimeType::class, [
                 'widget' => 'single_text',
+                    'label' => 'Added at',
             ])
             ->add('user', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                    'choice_label' => fn (User $user): string => sprintf('#%d - %s', $user->getId(), $user->getEmail() ?? 'unknown'),
+                    'label' => 'User',
+                    'placeholder' => 'Select a user',
             ])
         ;
     }

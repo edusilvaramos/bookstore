@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -22,18 +23,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\NotBlank]
+    #[Assert\Email(mode: Assert\Email::VALIDATION_MODE_STRICT)]
+    #[Assert\Length(max: 180)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\Regex(pattern: '/^[^<>]*$/', message: 'This value contains invalid characters.')]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\Regex(pattern: '/^[^<>]*$/', message: 'This value contains invalid characters.')]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 6, max: 255)]
+    #[Assert\Regex(pattern: '/^\+?[0-9\s\-().]{6,20}$/', message: 'Please enter a valid phone number.')]
     private ?string $phone = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Assert\NotNull]
+    #[Assert\LessThan('today')]
     private ?\DateTimeImmutable $dateOfBirth = null;
 
 
@@ -65,6 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->addresses = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->roles = ['ROLE_USER'];
     }
     // make cart is automatically created when a new user is created
     #[ORM\PrePersist]
@@ -174,6 +190,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
+        // No temporary sensitive data is stored on this entity.
     }
 
     /**
@@ -196,11 +213,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeAddress(Address $address): static
     {
-        if ($this->addresses->removeElement($address)) {
-            // set the owning side to null (unless already changed)
-            if ($address->getUser() === $this) {
-                $address->setUser(null);
-            }
+        if ($this->addresses->removeElement($address) && $address->getUser() === $this) {
+            $address->setUser(null);
         }
 
         return $this;
@@ -260,11 +274,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeOrder(Order $order): static
     {
-        if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
-            if ($order->getUser() === $this) {
-                $order->setUser(null);
-            }
+        if ($this->orders->removeElement($order) && $order->getUser() === $this) {
+            $order->setUser(null);
         }
 
         return $this;

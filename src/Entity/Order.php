@@ -6,6 +6,7 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -17,21 +18,30 @@ class Order
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[Assert\NotNull]
     private ?User $user = null;
 
     /**
      * @var Collection<int, Book>
      */
     #[ORM\ManyToMany(targetEntity: Book::class, inversedBy: 'orders')]
+    #[Assert\Count(min: 1, minMessage: 'An order must contain at least one book.')]
     private Collection $orderItems;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     private ?int $totalAmount = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '/^[^<>]*$/', message: 'This value contains invalid characters.')]
     private ?string $status = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()

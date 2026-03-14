@@ -7,43 +7,72 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
 {
+    private const NO_TAGS_PATTERN = '/^[^<>]*$/';
+    private const INVALID_CHARACTERS_MESSAGE = 'This value contains invalid characters.';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $title = null;
 
     /**
      * @var list<string>
      */
     #[ORM\Column(type: Types::JSON)]
+    #[Assert\Count(min: 1, minMessage: 'At least one author is required.')]
+    #[Assert\All([
+        new Assert\NotBlank(),
+        new Assert\Length(max: 255),
+        new Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE),
+    ])]
     private array $authors = [];
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 20, max: 5000)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $description = null;
 
     #[ORM\Column(length: 13)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 13, max: 13)]
+    #[Assert\Regex(pattern: '/^\d{13}$/', message: 'ISBN-13 must contain exactly 13 digits.')]
     private ?string $isbn13 = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     private ?int $price = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     private ?int $stock = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    #[Assert\Url(protocols: ['http', 'https'])]
     private ?string $coverUrl = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\LessThanOrEqual('today')]
     private ?\DateTimeImmutable $publishedAt = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**

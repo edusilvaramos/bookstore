@@ -1,0 +1,6 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block page_actions %}
+    <a class="btn btn-secondary" href="{{ path('app_book_index') }}">go back to app</a>
+    {{ parent() }}
+{% endblock %}

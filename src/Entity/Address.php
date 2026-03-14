@@ -6,13 +6,14 @@ use App\Repository\AddressRepository;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Length;
 use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address
 {
+    private const NO_TAGS_PATTERN = '/^[^<>]*$/';
+    private const INVALID_CHARACTERS_MESSAGE = 'This value contains invalid characters.';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,40 +24,48 @@ class Address
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $label = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(min: 3, max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $streetLine1 = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $streetLine2 = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $city = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $stateOrRegion = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(min: 3, max: 20)]
+    #[Assert\Regex(pattern: '/^[A-Za-z0-9\-\s]{3,20}$/', message: 'Please enter a valid postal code.')]
     private ?string $postalCode = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(min: 2, max: 2)]
+    #[Assert\Regex(pattern: '/^[A-Z]{2}$/', message: 'Country code must use 2 uppercase letters (ISO-3166-1 alpha-2).')]
     private ?string $countryCode = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $additionalInfo = null;
 
     public function getId(): ?int

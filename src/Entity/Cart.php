@@ -6,6 +6,7 @@ use App\Repository\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
@@ -17,6 +18,7 @@ class Cart
 
     #[ORM\OneToOne(inversedBy: 'cart', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull]
     private ?User $user = null;
 
  
@@ -24,6 +26,8 @@ class Cart
     private Collection $items;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $addAt = null;
 
     public function __construct()
