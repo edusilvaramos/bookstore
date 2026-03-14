@@ -249,7 +249,15 @@ class SeedBooksCommand extends Command
         $category = $volumeInfo['categories'][0] ?? $fallback;
         $category = trim(strip_tags((string) $category));
 
-        return $category !== '' ? mb_substr($category, 0, 100) : ucfirst($fallback);
+        if ($category === '') {
+            $category = $fallback;
+        }
+
+        $category = mb_strtolower($category);
+        $category = preg_replace('/\s+/', ' ', $category);
+        $category = ucwords($category);
+
+        return mb_substr($category, 0, 100);
     }
 
     private function findOrCreateCategory(string $name): Category
