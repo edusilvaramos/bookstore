@@ -70,12 +70,6 @@ class AddressType extends AbstractType
                         'placeholder' => 'Delivery instructions, gate code, etc.',
                     ],
                 ])
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                    'choice_label' => fn (User $user): string => sprintf('#%d - %s', $user->getId(), $user->getEmail() ?? 'unknown'),
-                    'label' => 'User',
-                    'placeholder' => 'Select a user',
-            ])
         ;
     }
 

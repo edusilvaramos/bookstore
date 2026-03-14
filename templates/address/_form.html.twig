@@ -20,12 +20,11 @@
             <div class="col-12 col-md-6">{{ form_row(form.postalCode) }}</div>
             <div class="col-12 col-md-6">{{ form_row(form.countryCode) }}</div>
             <div class="col-12">{{ form_row(form.additionalInfo) }}</div>
-            <div class="col-12">{{ form_row(form.user) }}</div>
         </div>
 
         <div class="d-flex gap-2 mt-4">
             <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
-            <a class="btn btn-outline-secondary" href="{{ path('app_address_index') }}">Cancel</a>
+            <a class="btn btn-outline-secondary" href="{{ path('app_user_show', {'id': app.user.id}) }}">Back to profile</a>
         </div>
     </div>
 </div>

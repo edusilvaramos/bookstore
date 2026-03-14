@@ -14,26 +14,20 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/address')]
 final class AddressController extends AbstractController
 {
-    #[Route(name: 'app_address_index', methods: ['GET'])]
-    public function index(AddressRepository $addressRepository): Response
-    {
-        return $this->render('address/index.html.twig', [
-            'addresses' => $addressRepository->findAll(),
-        ]);
-    }
-
     #[Route('/new', name: 'app_address_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
         $address = new Address();
         $form = $this->createForm(AddressType::class, $address);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $address->setUser($user);
             $entityManager->persist($address);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_show', ['id' => $address->getUser()->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('address/new.html.twig', [
