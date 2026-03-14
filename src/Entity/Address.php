@@ -180,4 +180,16 @@ class Address
 
         return $this;
     }
+        public function getFullAddress(): string
+    {
+        $parts = [
+            $this->streetLine1,
+            $this->streetLine2,
+            $this->city,
+            $this->stateOrRegion,
+            $this->postalCode,
+            $this->countryCode
+        ];
+        return implode(', ', array_filter($parts));
+    }
 }
