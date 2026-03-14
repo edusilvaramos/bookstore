@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Cart;
 use App\Entity\User;
+use Doctrine\DBAL\Types\DateType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,7 +15,7 @@ class CartType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-                ->add('addAt', DateTimeType::class, [
+                ->add('addAt', DateType::class, [
                 'widget' => 'single_text',
                     'label' => 'Added at',
             ])

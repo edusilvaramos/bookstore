@@ -29,7 +29,6 @@ class RegistrationFormType extends AbstractType
                     ],
                 ])
             ->add('firstName', TextType::class, [
-                'constraints' => [new NotBlank(message: 'Please enter your first name')],
                     'label' => 'First name',
                     'attr' => [
                         'autocomplete' => 'given-name',
@@ -37,7 +36,6 @@ class RegistrationFormType extends AbstractType
                     ],
             ])
             ->add('lastName', TextType::class, [
-                'constraints' => [new NotBlank(message: 'Please enter your last name')],
                     'label' => 'Last name',
                     'attr' => [
                         'autocomplete' => 'family-name',
@@ -45,7 +43,6 @@ class RegistrationFormType extends AbstractType
                     ],
             ])
             ->add('phone', TelType::class, [
-                'constraints' => [new NotBlank(message: 'Please enter your phone number')],
                     'label' => 'Phone',
                     'attr' => [
                         'autocomplete' => 'tel',
@@ -54,18 +51,10 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('dateOfBirth', DateType::class, [
                 'widget' => 'single_text',
-                'constraints' => [new NotBlank(message: 'Please enter your date of birth')],
                     'label' => 'Date of birth',
                     'attr' => [
                         'max' => (new \DateTimeImmutable('today'))->format('Y-m-d'),
                     ],
-            ])
-            ->add('agreeTerms', CheckboxType::class, [
-                'mapped' => false,
-                    'label' => 'I agree to the terms and privacy policy',
-                'constraints' => [
-                    new IsTrue(message: 'You should agree to our terms.'),
-                ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
