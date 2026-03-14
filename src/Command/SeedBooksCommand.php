@@ -20,6 +20,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 )]
 class SeedBooksCommand extends Command
 {
+    /**
+     * @var array<string, Category>
+     */
+    private array $categoryCache = [];
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly HttpClientInterface $httpClient,
@@ -41,6 +45,9 @@ class SeedBooksCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        // Limpa o cache de categorias a cada execução
+        $this->categoryCache = [];
+
         $subject = trim((string) $input->getArgument('subject'));
         $count = (int) $input->getArgument('count');
         $lang = trim((string) $input->getOption('lang'));
@@ -52,7 +59,7 @@ class SeedBooksCommand extends Command
 
         if ($input->getOption('purge')) {
             $io->warning('Purging existing books...');
-            $this->em->createQuery('DELETE FROM App\Entity\Book b')->execute();
+            $this->em->createQuery('DELETE FROM App\\Entity\\Book b')->execute();
         }
 
         $io->section(sprintf('Importing books from Google Books API (subject: %s, count: %d, lang: %s)', $subject, $count, $lang));
@@ -262,17 +269,21 @@ class SeedBooksCommand extends Command
 
     private function findOrCreateCategory(string $name): Category
     {
-        $category = $this->em->getRepository(Category::class)->findOneBy(['name' => $name]);
+        // Usa o cache local para evitar duplicidade
+        if (isset($this->categoryCache[$name])) {
+            return $this->categoryCache[$name];
+        }
 
+        $category = $this->em->getRepository(Category::class)->findOneBy(['name' => $name]);
         if ($category instanceof Category) {
+            $this->categoryCache[$name] = $category;
             return $category;
         }
 
         $category = new Category();
         $category->setName($name);
-
         $this->em->persist($category);
-
+        $this->categoryCache[$name] = $category;
         return $category;
     }
 }
