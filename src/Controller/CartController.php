@@ -65,6 +65,8 @@ final class CartController extends AbstractController
 
         $entityManager->flush();
 
+        $this->addFlash('success', 'The book has been added to your cart.');
+
         if ($from === 'cart') {
             return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
         }

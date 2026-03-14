@@ -42,4 +42,4 @@ jobs:
             echo "==> Reload PHP-FPM (ignore if service name differs)"
             sudo systemctl reload php8.4-fpm || sudo systemctl reload php-fpm || true
 
-            echo "✅ Deploy finished"
+            echo "Deploy finished"
