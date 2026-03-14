@@ -53,7 +53,7 @@ final class AddressController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_show', ['id' => $address->getUser()->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('address/edit.html.twig', [
@@ -65,11 +65,17 @@ final class AddressController extends AbstractController
     #[Route('/{id}', name: 'app_address_delete', methods: ['POST'])]
     public function delete(Request $request, Address $address, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$address->getId(), $request->getPayload()->getString('_token'))) {
+        $user = $address->getUser();
+
+        if ($this->isCsrfTokenValid('delete'.$address->getId(), $request->request->get('_token'))) {
             $entityManager->remove($address);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
+        if ($user) {
+            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
     }
 }

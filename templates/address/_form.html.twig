@@ -1,31 +1,105 @@
-{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
-{% if form.vars.submitted and not form.vars.valid %}
-    <div class="alert alert-danger mb-3" role="alert">
-        <strong>Please fix the errors highlighted below.</strong>
-        {% if form.vars.errors|length > 0 %}
-            <ul class="mb-0 mt-1 ps-3">
-                {% for error in form.vars.errors %}<li>{{ error.message }}</li>{% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-{% endif %}
-<div class="card shadow-sm border-0">
-    <div class="card-body p-4">
-        <div class="row g-3">
-            <div class="col-12">{{ form_row(form.label) }}</div>
-            <div class="col-12">{{ form_row(form.streetLine1) }}</div>
-            <div class="col-12">{{ form_row(form.streetLine2) }}</div>
-            <div class="col-12 col-md-6">{{ form_row(form.city) }}</div>
-            <div class="col-12 col-md-6">{{ form_row(form.stateOrRegion) }}</div>
-            <div class="col-12 col-md-6">{{ form_row(form.postalCode) }}</div>
-            <div class="col-12 col-md-6">{{ form_row(form.countryCode) }}</div>
-            <div class="col-12">{{ form_row(form.additionalInfo) }}</div>
-        </div>
+{{ form_start(form, {
+    attr: {
+        novalidate: 'novalidate'
+    }
+}) }}
 
-        <div class="d-flex gap-2 mt-4">
-            <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
-            <a class="btn btn-outline-secondary" href="{{ path('app_user_show', {'id': app.user.id}) }}">Back to profile</a>
+<div class="row justify-content-center my-5">
+    <div class="col-12 col-lg-8 col-xl-7">
+
+        {% if form.vars.submitted and not form.vars.valid %}
+            <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+                <div class="fw-semibold mb-1">Please fix the errors below.</div>
+
+                {% if form.vars.errors|length > 0 %}
+                    <ul class="mb-0 ps-3 small">
+                        {% for error in form.vars.errors %}
+                            <li>{{ error.message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="mb-4">
+                    <h1 class="h3 mb-2">Address details</h1>
+                    <p class="text-muted mb-0">
+                        Add or update your delivery address information.
+                    </p>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        {{ form_label(form.label, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.label, { attr: { class: 'form-control', placeholder: 'e.g. Home, Work' } }) }}
+                        {{ form_errors(form.label) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_label(form.streetLine1, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.streetLine1, { attr: { class: 'form-control', placeholder: 'Street address' } }) }}
+                        {{ form_errors(form.streetLine1) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_label(form.streetLine2, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.streetLine2, { attr: { class: 'form-control', placeholder: 'Apartment, suite, unit, etc. (optional)' } }) }}
+                        {{ form_errors(form.streetLine2) }}
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        {{ form_label(form.city, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.city, { attr: { class: 'form-control', placeholder: 'City' } }) }}
+                        {{ form_errors(form.city) }}
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        {{ form_label(form.stateOrRegion, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.stateOrRegion, { attr: { class: 'form-control', placeholder: 'State / Region' } }) }}
+                        {{ form_errors(form.stateOrRegion) }}
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        {{ form_label(form.postalCode, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.postalCode, { attr: { class: 'form-control', placeholder: 'Postal code' } }) }}
+                        {{ form_errors(form.postalCode) }}
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        {{ form_label(form.countryCode, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.countryCode, { attr: { class: 'form-select' } }) }}
+                        {{ form_errors(form.countryCode) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_label(form.additionalInfo, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+                        {{ form_widget(form.additionalInfo, {
+                            attr: {
+                                class: 'form-control',
+                                rows: 4,
+                                placeholder: 'Delivery notes, building access, or other useful details'
+                            }
+                        }) }}
+                        {{ form_errors(form.additionalInfo) }}
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-sm-row gap-2 mt-4 pt-2">
+                    <button class="btn btn-primary px-4">
+                        {{ button_label|default('Save address') }}
+                    </button>
+
+                    <a class="btn btn-outline-secondary px-4"
+                       href="{{ path('app_user_show', {'id': app.user.id}) }}">
+                        Back to profile
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 {{ form_end(form) }}
