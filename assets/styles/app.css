@@ -1,4 +1,21 @@
 /* border-right none */
-.navbar-brand, .nav-item .nav-link {
+.navbar-brand,
+.nav-item .nav-link {
     border: none !important;
+}
+
+.book-card {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    background: #fff !important;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.book-card .card-title {
+    color: #212529 !important;
 }

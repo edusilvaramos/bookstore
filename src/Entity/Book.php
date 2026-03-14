@@ -87,6 +87,10 @@ class Book
     #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'orderItems')]
     private Collection $orders;
 
+    #[ORM\ManyToOne(inversedBy: 'books')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
+
     public function __construct()
     {
         $this->cartItems = new ArrayCollection();
@@ -262,6 +266,18 @@ class Book
         if ($this->orders->removeElement($order)) {
             $order->removeOrderItem($this);
         }
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

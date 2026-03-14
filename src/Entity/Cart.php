@@ -84,7 +84,8 @@ class Cart
     public function findItemByBook(Book $book): ?CartItem
     {
         foreach ($this->items as $item) {
-            if ($item->getBook() === $book) {
+            $itemBook = $item->getBook();
+            if ($itemBook !== null && $book !== null && $itemBook->getId() === $book->getId()) {
                 return $item;
             }
         }
