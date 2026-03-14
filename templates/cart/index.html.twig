@@ -6,6 +6,7 @@
 <div class="container py-4">
     <h2 class="mb-4">My Cart</h2>
 
+    <turbo-frame id="cart_frame">
     {% if items is not empty %}
         <div class="card bg-dark">
             <div class="card-body">
@@ -29,6 +30,7 @@
                                 <a
                                     href="{{ path('app_cart_decrease', {id: book.id}) }}"
                                     class="btn btn-sm btn-outline-light"
+                                    data-turbo-frame="cart_frame"
                                     aria-label="Decrease quantity"
                                 >
                                     -
@@ -36,7 +38,7 @@
 
                                 <span>Qty: {{ item.quantity }}</span>
 
-                                <form method="post" action="{{ path('app_cart_add', {id: book.id}) }}" class="d-inline">
+                                <form method="post" action="{{ path('app_cart_add', {id: book.id}) }}" class="d-inline" data-turbo-frame="cart_frame">
                                     <input type="hidden" name="from" value="cart">
                                     <input type="hidden" name="_token" value="{{ csrf_token('add_to_cart_' ~ book.id) }}">
                                     <button
@@ -56,6 +58,7 @@
                             <a
                                 href="{{ path('app_cart_remove', {id: book.id}) }}"
                                 class="btn btn-sm btn-outline-danger mt-2"
+                                data-turbo-frame="cart_frame"
                             >
                                 Remove
                             </a>
@@ -64,7 +67,7 @@
                 {% endfor %}
 
                 {% if addresses is not empty %}
-                    <form method="get" class="mb-3">
+                    <form method="get" class="mb-3" data-turbo-frame="cart_frame">
                         <div class="mb-2">
                             <label for="address_id" class="form-label">Delivery address:</label>
                             <select name="address_id" id="address_id" class="form-select" onchange="this.form.submit()">
@@ -124,5 +127,6 @@
             Your cart is empty.
         </div>
     {% endif %}
+    </turbo-frame>
 </div>
 {% endblock %}

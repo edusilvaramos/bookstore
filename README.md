@@ -13,7 +13,7 @@ Bookstore is a Symfony 8 application for browsing books, managing user accounts,
 - Order management.
 - Admin dashboard powered by EasyAdmin.
 - Email delivery through Symfony Mailer with Brevo support.
-- Local email testing with Mailpit via Docker Compose.
+- Optional local email testing with Mailpit.
 - Shipping estimation based on address distance using OpenRouteService.
 - Book import from Google Books API.
 - Console commands for admin bootstrap and database utility tasks.
@@ -22,13 +22,12 @@ Bookstore is a Symfony 8 application for browsing books, managing user accounts,
 
 - PHP 8.4+
 - Symfony 8
-- PostgreSQL 16
+- MySQL 8
 - Doctrine ORM and Doctrine Migrations
 - Twig
 - Webpack Encore
 - Stimulus and Turbo
 - EasyAdmin
-- Docker Compose for local services
 
 ## Requirements
 
@@ -37,8 +36,8 @@ Install the following tools before running the project:
 - PHP 8.4 or newer
 - Composer
 - Node.js and npm
-- PostgreSQL 16 or newer
-- A PostgreSQL client is optional but useful for debugging
+- MySQL 8 or newer
+- A MySQL client is optional but useful for debugging
 - Symfony CLI is optional but convenient for local serving
 
 ## External Services
@@ -59,8 +58,8 @@ At minimum, review and configure these values:
 ```dotenv
 APP_ENV=dev
 APP_SECRET=change-me
-DATABASE_URL="postgresql://app:!ChangeMe!@127.0.0.1:5432/app?serverVersion=16&charset=utf8"
-MAILER_DSN=smtp://127.0.0.1:1025
+DATABASE_URL="mysql://root:root@127.0.0.1:8889/booksStore?serverVersion=8.0.32&charset=utf8mb4"
+MAILER_DSN=brevo+api://YOUR_BREVO_API_KEY@default
 DEFAULT_URI=http://127.0.0.1:8000
 
 GOOGLE_BOOKS_API_KEY=
@@ -73,7 +72,7 @@ Notes:
 - For Brevo, use your own API key or SMTP credentials, for example `brevo+api://YOUR_KEY@default`.
 - For local development with Mailpit, `smtp://127.0.0.1:1025` is enough.
 - `ORS_API_KEY` and `STORE_ADDRESS` are required if you want shipping estimation to work.
-- `GOOGLE_BOOKS_API_KEY` is wired in the service configuration. The current import command uses Google Books through HTTP requests, so keeping this variable configured is recommended.
+- `GOOGLE_BOOKS_API_KEY` exists in the service configuration, but the current book import command does not require it.
 - Never commit real secrets to the repository.
 
 ## Installation
@@ -89,8 +88,8 @@ npm install
 
 Before running the application, make sure these local services are available on your machine:
 
-- PostgreSQL on port `5432`
-- An SMTP server for development if you want to test emails locally
+- MySQL on the host and port defined in `DATABASE_URL`
+- An SMTP server only if you want local email testing instead of Brevo
 
 You have two common options for email during development:
 
@@ -107,6 +106,12 @@ php bin/console doctrine:migrations:migrate
 ```
 
 If the database already exists, just run the migration command.
+
+Example local MySQL configuration used in this project:
+
+```dotenv
+DATABASE_URL="mysql://root:root@127.0.0.1:8889/booksStore?serverVersion=8.0.32&charset=utf8mb4"
+```
 
 ## Build Frontend Assets
 
@@ -160,6 +165,8 @@ npm run dev
 php -S 127.0.0.1:8000 -t public
 ```
 
+This assumes MySQL is already running locally and matches your `DATABASE_URL`.
+
 ## Seed Data and Admin Access
 
 Create an admin user:
@@ -204,7 +211,7 @@ MAILER_DSN=smtp://127.0.0.1:1025
 
 Then inspect outgoing emails in `http://127.0.0.1:8025`.
 
-If you do not use Mailpit, configure Brevo instead.
+If you do not use Mailpit, keep Brevo configured instead.
 
 ### Brevo
 
@@ -268,7 +275,8 @@ php bin/phpunit
 
 ## Development Notes
 
-- The default `.env` currently targets PostgreSQL on `127.0.0.1:5432`.
+- The committed `.env` file still contains a PostgreSQL example, but the active local configuration can override it through `.env.local`.
+- The current local setup uses MySQL on `127.0.0.1:8889`.
 - Registration requires mail delivery to complete email verification properly.
 - Password reset also depends on a working mailer configuration.
 - Admin access requires a user with `ROLE_ADMIN`.
@@ -294,5 +302,6 @@ If assets are missing:
 
 If the database connection fails:
 
-- make sure PostgreSQL is running
+- make sure MySQL is running
+- confirm host, port, database name, user, and password in `DATABASE_URL`
 - verify `DATABASE_URL`

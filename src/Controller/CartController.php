@@ -64,73 +64,133 @@ final class CartController extends AbstractController
         Request $request,
         ShippingEstimatorService $shippingEstimatorService
     ): array {
-        $addresses = [];
-        $addressLabels = [];
-        $selectedAddress = null;
-        $distanceKm = null;
-        $shippingCost = null;
-        $shippingError = null;
+        $shippingData = [
+            'addresses' => [],
+            'addressLabels' => [],
+            'selectedAddress' => null,
+            'distanceKm' => null,
+            'shippingCost' => null,
+            'shippingError' => null,
+        ];
 
         $user = $this->getUser();
 
         if (!$user || !method_exists($user, 'getAddresses')) {
-            return [
-                'addresses' => $addresses,
-                'addressLabels' => $addressLabels,
-                'selectedAddress' => $selectedAddress,
-                'distanceKm' => $distanceKm,
-                'shippingCost' => $shippingCost,
-                'shippingError' => $shippingError,
-            ];
+            return $shippingData;
         }
 
-        $addressCollection = $user->getAddresses();
-        $addresses = is_array($addressCollection) ? $addressCollection : $addressCollection->toArray();
+        $shippingData['addresses'] = $this->getAddressesFromUser($user);
 
-        if (empty($addresses)) {
-            return [
-                'addresses' => $addresses,
-                'addressLabels' => $addressLabels,
-                'selectedAddress' => $selectedAddress,
-                'distanceKm' => $distanceKm,
-                'shippingCost' => $shippingCost,
-                'shippingError' => 'Add an address to estimate shipping.',
-            ];
-        }
+        if ($shippingData['addresses'] === []) {
+            $shippingData['shippingError'] = 'Add an address to estimate shipping.';
+        } else {
+            $shippingData['addressLabels'] = $this->buildAddressLabels($shippingData['addresses']);
+            $selectedAddress = $this->resolveSelectedAddress($request, $shippingData['addresses']);
 
-        foreach ($addresses as $address) {
-            if ($address instanceof Address && $address->getId() !== null) {
-                $addressLabels[$address->getId()] = $address->getFullAddress();
+            if (!$selectedAddress instanceof Address || $selectedAddress->getId() === null) {
+                $shippingData['shippingError'] = 'Invalid address selection.';
+            } else {
+                $shippingData['selectedAddress'] = $selectedAddress;
+                $quote = $this->resolveQuoteForAddress($request, $selectedAddress, $shippingEstimatorService);
+                $shippingData['distanceKm'] = $quote['distanceKm'];
+                $shippingData['shippingCost'] = $quote['shippingCost'];
+                $shippingData['shippingError'] = $quote['error'];
             }
         }
 
-        $selectedAddressId = $request->query->getInt('address_id');
-        $selectedAddress = $this->findAddressById($addresses, $selectedAddressId) ?? $addresses[0];
+        return $shippingData;
+    }
 
-        if (!$selectedAddress instanceof Address) {
-            return [
-                'addresses' => $addresses,
-                'addressLabels' => $addressLabels,
-                'selectedAddress' => null,
-                'distanceKm' => null,
-                'shippingCost' => null,
-                'shippingError' => 'Invalid address selection.',
-            ];
+    /**
+     * @return array<int, mixed>
+     */
+    private function getAddressesFromUser(object $user): array
+    {
+        /** @var mixed $addressCollection */
+        $addressCollection = $user->getAddresses();
+
+        return is_array($addressCollection) ? $addressCollection : $addressCollection->toArray();
+    }
+
+    /**
+     * @param array<int, mixed> $addresses
+     *
+     * @return array<int, string>
+     */
+    private function buildAddressLabels(array $addresses): array
+    {
+        $labels = [];
+
+        foreach ($addresses as $address) {
+            if ($address instanceof Address && $address->getId() !== null) {
+                $labels[$address->getId()] = $address->getFullAddress();
+            }
         }
 
-        $quote = $shippingEstimatorService->estimateForAddress($selectedAddress);
+        return $labels;
+    }
 
-        $distanceKm = $quote['distanceKm'] ?? null;
-        $shippingCost = $quote['shippingCost'] ?? null;
-        $shippingError = $quote['error'] ?? null;
+    /**
+     * @param array<int, mixed> $addresses
+     */
+    private function resolveSelectedAddress(Request $request, array $addresses): ?Address
+    {
+        $session = $request->hasSession() ? $request->getSession() : null;
+        $selectedAddressId = $request->query->getInt('address_id');
 
+        if ($selectedAddressId <= 0 && $session !== null) {
+            $selectedAddressId = (int) $session->get('cart.shipping.selected_address_id', 0);
+        }
+
+        return $this->findAddressById($addresses, $selectedAddressId) ?? $addresses[0];
+    }
+
+    /**
+     * @return array{distanceKm: mixed, shippingCost: mixed, error: mixed}
+     */
+    private function resolveQuoteForAddress(
+        Request $request,
+        Address $selectedAddress,
+        ShippingEstimatorService $shippingEstimatorService
+    ): array {
+        $session = $request->hasSession() ? $request->getSession() : null;
+        $selectedAddressDbId = (int) $selectedAddress->getId();
+        $cachedAddressId = $session ? (int) $session->get('cart.shipping.selected_address_id', 0) : 0;
+        $cachedQuote = $session ? $session->get('cart.shipping.quote') : null;
+
+        if ($cachedAddressId === $selectedAddressDbId && $this->isValidCachedQuote($cachedQuote)) {
+            return $cachedQuote;
+        }
+
+        $quote = $this->normalizeQuote($shippingEstimatorService->estimateForAddress($selectedAddress));
+
+        if ($session !== null) {
+            $session->set('cart.shipping.selected_address_id', $selectedAddressDbId);
+            $session->set('cart.shipping.quote', $quote);
+        }
+
+        return $quote;
+    }
+
+    private function isValidCachedQuote(mixed $cachedQuote): bool
+    {
+        return is_array($cachedQuote)
+            && array_key_exists('distanceKm', $cachedQuote)
+            && array_key_exists('shippingCost', $cachedQuote)
+            && array_key_exists('error', $cachedQuote);
+    }
+
+    /**
+     * @param array<string, mixed> $quote
+     *
+     * @return array{distanceKm: mixed, shippingCost: mixed, error: mixed}
+     */
+    private function normalizeQuote(array $quote): array
+    {
         return [
-            'addresses' => $addresses,
-            'addressLabels' => $addressLabels,
-            'selectedAddress' => $selectedAddress,
-            'distanceKm' => $distanceKm,
-            'shippingCost' => $shippingCost,
-            'shippingError' => $shippingError,
+            'distanceKm' => $quote['distanceKm'] ?? null,
+            'shippingCost' => $quote['shippingCost'] ?? null,
+            'error' => $quote['error'] ?? null,
         ];
     }
 
