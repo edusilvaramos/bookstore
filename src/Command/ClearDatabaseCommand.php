@@ -47,9 +47,10 @@ class ClearDatabaseCommand extends Command
             return Command::INVALID;
         }
 
-        $platform = $this->connection->getDatabasePlatform()->getName();
+        $platformClass = '';
 
         try {
+            $platformClass = strtolower($this->connection->getDatabasePlatform()::class);
             $this->connection->beginTransaction();
 
             $schemaManager = method_exists($this->connection, 'createSchemaManager')
@@ -59,50 +60,29 @@ class ClearDatabaseCommand extends Command
             $tables = $schemaManager->listTableNames();
 
             if (empty($tables)) {
+                $this->connection->commit();
                 $io->success('No tables found in the database.');
                 return Command::SUCCESS;
             }
 
             // Disable foreign key checks depending on the database platform
-            switch ($platform) {
-                case 'postgresql':
-                    $this->connection->executeStatement('SET session_replication_role = replica;');
-                    break;
-
-                case 'mysql':
-                    $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
-                    break;
-
-                case 'sqlite':
-                    $this->connection->executeStatement('PRAGMA foreign_keys = OFF;');
-                    break;
-            }
+            $this->disableForeignKeyChecks($platformClass);
 
             foreach ($tables as $table) {
-                if ($platform === 'postgresql') {
+                $quotedTable = $this->quoteTableName($table);
+
+                if (str_contains($platformClass, 'postgresql')) {
                     $this->connection->executeStatement(sprintf(
-                        'TRUNCATE TABLE "%s" RESTART IDENTITY CASCADE;',
-                        $table
+                        'TRUNCATE TABLE %s RESTART IDENTITY CASCADE;',
+                        $quotedTable
                     ));
                 } else {
-                    $this->connection->executeStatement(sprintf('DELETE FROM %s;', $table));
+                    $this->connection->executeStatement(sprintf('DELETE FROM %s;', $quotedTable));
                 }
             }
 
             // Re-enable foreign key checks
-            switch ($platform) {
-                case 'postgresql':
-                    $this->connection->executeStatement('SET session_replication_role = DEFAULT;');
-                    break;
-
-                case 'mysql':
-                    $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
-                    break;
-
-                case 'sqlite':
-                    $this->connection->executeStatement('PRAGMA foreign_keys = ON;');
-                    break;
-            }
+            $this->enableForeignKeyChecks($platformClass);
 
             $this->connection->commit();
             $this->entityManager->clear();
@@ -111,22 +91,14 @@ class ClearDatabaseCommand extends Command
 
             return Command::SUCCESS;
         } catch (\Throwable $e) {
-            $this->connection->rollBack();
+            if ($this->connection->isTransactionActive()) {
+                $this->connection->rollBack();
+            }
 
             // Try to restore constraints even if an error occurs
             try {
-                switch ($platform) {
-                    case 'postgresql':
-                        $this->connection->executeStatement('SET session_replication_role = DEFAULT;');
-                        break;
-
-                    case 'mysql':
-                        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
-                        break;
-
-                    case 'sqlite':
-                        $this->connection->executeStatement('PRAGMA foreign_keys = ON;');
-                        break;
+                if ($platformClass !== '') {
+                    $this->enableForeignKeyChecks($platformClass);
                 }
             } catch (\Throwable) {
             }
@@ -136,5 +108,50 @@ class ClearDatabaseCommand extends Command
 
             return Command::FAILURE;
         }
+    }
+
+    private function disableForeignKeyChecks(string $platformClass): void
+    {
+        if (str_contains($platformClass, 'postgresql')) {
+            $this->connection->executeStatement('SET session_replication_role = replica;');
+            return;
+        }
+
+        if (str_contains($platformClass, 'mysql')) {
+            $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
+            return;
+        }
+
+        if (str_contains($platformClass, 'sqlite')) {
+            $this->connection->executeStatement('PRAGMA foreign_keys = OFF;');
+        }
+    }
+
+    private function enableForeignKeyChecks(string $platformClass): void
+    {
+        if (str_contains($platformClass, 'postgresql')) {
+            $this->connection->executeStatement('SET session_replication_role = DEFAULT;');
+            return;
+        }
+
+        if (str_contains($platformClass, 'mysql')) {
+            $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
+            return;
+        }
+
+        if (str_contains($platformClass, 'sqlite')) {
+            $this->connection->executeStatement('PRAGMA foreign_keys = ON;');
+        }
+    }
+
+    private function quoteTableName(string $table): string
+    {
+        $parts = explode('.', $table);
+        $quotedParts = array_map(
+            fn (string $part): string => $this->connection->quoteSingleIdentifier($part),
+            $parts
+        );
+
+        return implode('.', $quotedParts);
     }
 }

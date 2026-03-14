@@ -8,8 +8,11 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+
 class BookFixtures extends Fixture
 {
+    private array $categoryCache = [];
+
     public function __construct(
         private readonly HttpClientInterface $httpClient,
     ) {
@@ -198,17 +201,22 @@ class BookFixtures extends Fixture
 
     private function findOrCreateCategory(ObjectManager $manager, string $name): Category
     {
-        $category = $manager->getRepository(Category::class)->findOneBy(['name' => $name]);
+        // Use cache to avoid creating duplicate categories in the same fixture run
+        $key = mb_strtolower(trim($name));
+        if (isset($this->categoryCache[$key])) {
+            return $this->categoryCache[$key];
+        }
 
+        $category = $manager->getRepository(Category::class)->findOneBy(['name' => $name]);
         if ($category instanceof Category) {
+            $this->categoryCache[$key] = $category;
             return $category;
         }
 
         $category = new Category();
         $category->setName($name);
-
         $manager->persist($category);
-
+        $this->categoryCache[$key] = $category;
         return $category;
     }
 }
