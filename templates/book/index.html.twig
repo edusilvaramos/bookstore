@@ -46,9 +46,10 @@
 										View details
 									</a>
 
-									<a href="{{ path('app_cart_add', {id: book.id}) }}" class="btn btn-dark rounded-pill">
-										Add to cart
-									</a>
+									<form method="post" action="{{ path('app_cart_add', {id: book.id}) }}" class="d-grid">
+										<input type="hidden" name="_token" value="{{ csrf_token('add_to_cart_' ~ book.id) }}">
+										<button type="submit" class="btn btn-dark rounded-pill">Add to cart</button>
+									</form>
 								</div>
 							</div>
 

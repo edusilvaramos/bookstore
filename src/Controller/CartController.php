@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Cart;
 use App\Entity\CartItem;
+use App\Entity\Book;
 use App\Form\CartType;
 use App\Repository\BookRepository;
 use App\Repository\CartRepository;
@@ -39,20 +40,19 @@ final class CartController extends AbstractController
         ]);
     }
     
-    //  to add a book to the cart
-    #[Route('/new', name: 'app_cart_add', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
+    // Adds one unit of a book to the authenticated user's cart.
+    #[Route('/add/{id}', name: 'app_cart_add', methods: ['POST'])]
+    public function add(int $id, Request $request, EntityManagerInterface $entityManager, BookRepository $bookRepository, CartRepository $cartRepository): Response
     {
-        $bookId = $request->query->get('id');
-        $from = $request->query->get('from');
-        $book = $bookRepository->find($bookId);
+        $from = $request->request->get('from');
+        $book = $bookRepository->find($id);
         $cart = $cartRepository->findOneBy(['user' => $this->getUser()]);
 
-        if (!$cart || !$book) {
+        if (!$cart || !$book || !$this->isCsrfTokenValid('add_to_cart_'.$id, (string) $request->request->get('_token'))) {
             return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        $existingItem = $cart->findItemByBook($book);
+        $existingItem = $this->mergeDuplicateItems($cart, $book);
 
         if ($existingItem !== null) {
             $existingItem->incrementQuantity();
@@ -65,13 +65,44 @@ final class CartController extends AbstractController
 
         $entityManager->flush();
 
-        $this->addFlash('success', 'The book has been added to your cart.');
+        if ($from !== 'cart') {
+            $this->addFlash('success', 'The book has been added to your cart.');
+        }
 
         if ($from === 'cart') {
             return $this->redirectToRoute('app_cart_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * Ensures a cart has at most one line per book by merging duplicate rows.
+     */
+    private function mergeDuplicateItems(Cart $cart, Book $book): ?CartItem
+    {
+        $matchingItems = [];
+
+        foreach ($cart->getItems() as $item) {
+            $itemBook = $item->getBook();
+
+            if ($itemBook !== null && $itemBook->getId() === $book->getId()) {
+                $matchingItems[] = $item;
+            }
+        }
+
+        if ($matchingItems === []) {
+            return null;
+        }
+
+        $primaryItem = array_shift($matchingItems);
+
+        foreach ($matchingItems as $duplicateItem) {
+            $primaryItem->incrementQuantity($duplicateItem->getQuantity());
+            $cart->removeItem($duplicateItem);
+        }
+
+        return $primaryItem;
     }
 
     #[Route('/decrease/{id}', name: 'app_cart_decrease', methods: ['GET'])]

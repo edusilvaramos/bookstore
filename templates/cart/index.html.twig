@@ -37,11 +37,13 @@
                                     -
                                 </a>
                                 <span>Qty: {{ item.quantity }}</span>
-                                <a href="{{ path('app_cart_add', {id: book.id, from: 'cart'}) }}"
-                                   class="btn btn-sm btn-outline-light"
-                                   aria-label="Increase quantity">
-                                    +
-                                </a>
+                                <form method="post" action="{{ path('app_cart_add', {id: book.id}) }}" class="d-inline">
+                                    <input type="hidden" name="from" value="cart">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('add_to_cart_' ~ book.id) }}">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-light"
+                                            aria-label="Increase quantity">+</button>
+                                </form>
                             </div>
                             <div class="fw-bold">
                                 {{ (book.price * item.quantity)|euro }}

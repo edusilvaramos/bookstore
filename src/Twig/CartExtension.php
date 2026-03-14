@@ -3,7 +3,6 @@
 namespace App\Twig;
 
 use App\Repository\CartRepository;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -34,10 +33,7 @@ final class CartExtension extends AbstractExtension implements GlobalsInterface
             return ['cart_item_count' => 0];
         }
 
-        $count = 0;
-        foreach ($cart->getItems() as $item) {
-            $count += $item->getQuantity();
-        }
+        $count = $cart->getItems()->count();
 
         return ['cart_item_count' => $count];
     }
