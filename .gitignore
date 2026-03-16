@@ -1,5 +1,6 @@
 ###> symfony/framework-bundle ###
 /.env.local
+.DS_Store
 /.embold
 /.env.local.php
 /.env.*.local
