@@ -62,15 +62,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var Collection<int, Address>
-     */
+
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
     private Collection $addresses;
 
-    /**
-     * @var Collection<int, ResetPasswordRequest>
-     */
+
     #[ORM\OneToMany(targetEntity: ResetPasswordRequest::class, mappedBy: 'user', cascade: ['remove'], orphanRemoval: true)]
     private Collection $resetPasswordRequests;
 
@@ -80,9 +76,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Cart $cart = null;
 
-    /**
-     * @var Collection<int, Order>
-     */
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user')]
     private Collection $orders;
 
@@ -216,17 +209,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // No temporary sensitive data is stored on this entity.
     }
 
-    /**
-     * @return Collection<int, Address>
-     */
+
     public function getAddresses(): Collection
     {
         return $this->addresses;
     }
 
-    /**
-     * @return Collection<int, ResetPasswordRequest>
-     */
     public function getResetPasswordRequests(): Collection
     {
         return $this->resetPasswordRequests;
@@ -302,9 +290,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Order>
-     */
+
     public function getOrders(): Collection
     {
         return $this->orders;

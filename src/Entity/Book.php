@@ -26,9 +26,7 @@ class Book
     #[Assert\Regex(pattern: self::NO_TAGS_PATTERN, message: self::INVALID_CHARACTERS_MESSAGE)]
     private ?string $title = null;
 
-    /**
-     * @var list<string>
-     */
+
     #[ORM\Column(type: Types::JSON)]
     #[Assert\Count(min: 1, minMessage: 'At least one author is required.')]
     #[Assert\All([
@@ -75,15 +73,11 @@ class Book
     #[Assert\NotNull]
     private ?\DateTimeImmutable $createdAt = null;
 
-    /**
-     * @var Collection<int, CartItem>
-     */
+  
     #[ORM\OneToMany(mappedBy: 'book', targetEntity: CartItem::class, orphanRemoval: true)]
     private Collection $cartItems;
 
-    /**
-     * @var Collection<int, Order>
-     */
+
     #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'orderItems')]
     private Collection $orders;
 
@@ -114,17 +108,13 @@ class Book
         return $this;
     }
 
-    /**
-     * @return list<string>
-     */
+    
     public function getAuthors(): array
     {
         return $this->authors;
     }
 
-    /**
-     * @param list<string> $authors
-     */
+  
     public function setAuthors(array $authors): static
     {
         $this->authors = $authors;
@@ -216,9 +206,6 @@ class Book
         return $this;
     }
 
-    /**
-     * @return Collection<int, CartItem>
-     */
     public function getCartItems(): Collection
     {
         return $this->cartItems;
@@ -243,9 +230,6 @@ class Book
         return $this;
     }
 
-    /**
-     * @return Collection<int, Order>
-     */
     public function getOrders(): Collection
     {
         return $this->orders;

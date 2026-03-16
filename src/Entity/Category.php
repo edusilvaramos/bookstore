@@ -18,9 +18,7 @@ class Category
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 
-    /**
-     * @var Collection<int, Book>
-     */
+
     #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'category')]
     private Collection $books;
 
@@ -46,9 +44,6 @@ class Category
         return $this;
     }
 
-    /**
-     * @return Collection<int, Book>
-     */
     public function getBooks(): Collection
     {
         return $this->books;

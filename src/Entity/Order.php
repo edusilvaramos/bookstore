@@ -21,9 +21,7 @@ class Order
     #[Assert\NotNull]
     private ?User $user = null;
 
-    /**
-     * @var Collection<int, Book>
-     */
+    
     #[ORM\ManyToMany(targetEntity: Book::class, inversedBy: 'orders')]
     #[Assert\Count(min: 1, minMessage: 'An order must contain at least one book.')]
     private Collection $orderItems;
@@ -66,9 +64,7 @@ class Order
         return $this;
     }
 
-    /**
-     * @return Collection<int, Book>
-     */
+ 
     public function getOrderItems(): Collection
     {
         return $this->orderItems;
