@@ -27,6 +27,11 @@ class Category
         $this->books = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->name ?? '';
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,11 +66,8 @@ class Category
 
     public function removeBook(Book $book): static
     {
-        if ($this->books->removeElement($book)) {
-            // set the owning side to null (unless already changed)
-            if ($book->getCategory() === $this) {
-                $book->setCategory(null);
-            }
+        if ($this->books->removeElement($book) && $book->getCategory() === $this) {
+            $book->setCategory(null);
         }
 
         return $this;

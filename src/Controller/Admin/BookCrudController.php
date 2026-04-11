@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Book;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -30,6 +31,7 @@ class BookCrudController extends AbstractCrudController
             TextField::new('isbn13', 'ISBN-13'),
             IntegerField::new('price'),
             IntegerField::new('stock'),
+            AssociationField::new('category'),
             UrlField::new('coverUrl', 'Cover URL'),
             DateField::new('publishedAt', 'Published at'),
             DateTimeField::new('createdAt')->hideOnForm(),
