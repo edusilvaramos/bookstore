@@ -1,7 +1,10 @@
 # Bookstore
 
 A Symfony-based online bookstore project built with PHP.  
-This project includes user authentication, address management, book import from the Google Books API, cart and order features, and transactional emails with Brevo.
+This project includes user authentication, address management, book import from the Google Books API, cart and order features, and transactional emails with Brevo. 
+
+You can access the demo at [https://bookstore.edusilvaramos.com/login](https://bookstore.edusilvaramos.com/login)
+
 
 ## Features
 
