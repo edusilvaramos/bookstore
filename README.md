@@ -20,8 +20,8 @@ You can access the demo at [https://bookstore.edusilvaramos.com/login](https://b
 
 ## Tech Stack
 
-- PHP
-- Symfony
+- PHP 8.4+
+- Symfony 8.0
 - MySQL
 - Doctrine ORM
 - Twig
@@ -31,7 +31,7 @@ You can access the demo at [https://bookstore.edusilvaramos.com/login](https://b
 
 ## Requirements
 
-- PHP 8.2+
+- PHP 8.4+
 - Composer
 - Symfony CLI
 - MySQL
