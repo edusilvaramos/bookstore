@@ -53,7 +53,7 @@ class RegistrationFormType extends AbstractType
                 'widget' => 'single_text',
                     'label' => 'Date of birth',
                     'attr' => [
-                        'max' => (new \DateTimeImmutable('today'))->format('Y-m-d'),
+                        'max' => (new \DateTimeImmutable('-18 years'))->format('Y-m-d'),
                     ],
             ])
             ->add('plainPassword', PasswordType::class, [

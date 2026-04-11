@@ -50,6 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\NotNull(message: 'Please enter your date of birth')]
     #[Assert\LessThan('today', message: 'Date of birth must be in the past')]
+    #[Assert\LessThanOrEqual('-18 years', message: 'You must be at least 18 years old to register.')]
     private ?\DateTimeImmutable $dateOfBirth = null;
 
 
